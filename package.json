@@ -1,0 +1,10 @@
+{
+  "name": "@saas-crm/shared",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "antd": "^5.26.7",
+    "lucide-react": "^0.536.0"
+  }
+}

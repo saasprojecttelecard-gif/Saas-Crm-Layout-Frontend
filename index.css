@@ -1,0 +1,19 @@
+.ant-menu-item:hover,
+.ant-menu-item-active,
+.ant-menu-submenu-title:hover {
+  background-color: #ebebeb !important;
+  color: #000 !important;
+  border-radius: none !important;
+}
+
+.ant-menu-item-selected {
+  background-color: #1c1919 !important;
+  color: white !important;
+}
+
+.ant-menu-item {
+  border-radius: 0 !important;
+  margin:0 !important;
+  border: none !important;
+  width: 100% !important;
+}

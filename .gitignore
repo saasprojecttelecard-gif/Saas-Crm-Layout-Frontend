@@ -1,0 +1,45 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite
+dist/
+.vite/
+*.local
+
+# Yarn Workspaces
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Coverage
+coverage/
+
+# Optional: Lock files (if you're only using yarn)
+package-lock.json
+pnpm-lock.yaml
