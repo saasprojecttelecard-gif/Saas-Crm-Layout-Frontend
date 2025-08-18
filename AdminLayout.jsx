@@ -12,6 +12,7 @@ import {
     AlignLeft,
     UserPlus,
     Boxes,
+    Ticket
 } from 'lucide-react';
 import './index.css';
 
@@ -29,24 +30,29 @@ const AdminLayout = ({ children }) => {
 
     const menuItems = [
         {
-            key: '1',
+            key: '/dashboard',
             icon: <LayoutDashboard size={16} />,
             label: 'Dashboard',
         },
         {
-            key: '2',
+            key: '/users',
             icon: <User size={16} />,
             label: 'User',
         },
         {
-            key: '3',
+            key: '/leads',
             icon: <UserPlus size={16} />,
             label: 'Lead',
         },
         {
-            key: '4',
+            key: '/inventory',
             icon: <Boxes size={16} />,
             label: 'Inventory',
+        },
+        {
+            key: '/tickets',
+            icon: <Ticket size={16} />,
+            label: 'Ticket',
         },
     ];
 
@@ -102,7 +108,7 @@ const AdminLayout = ({ children }) => {
                     }} >
                         {collapsed ? <Text strong style={{ fontSize: '20px', marginLeft: 10 }}>A</Text> : <Text strong style={{ fontSize: '20px', marginLeft: 8 }}>Accord CRM</Text>}
                     </div>
-                    <Menu defaultSelectedKeys={['1']} mode="inline" items={menuItems} />
+                    <Menu defaultSelectedKeys={[window.location.pathname]} mode="inline" items={menuItems} />
                 </Sider>
             )}
 
