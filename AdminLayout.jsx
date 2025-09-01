@@ -1,32 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Button, theme, Drawer, Space, Typography, Dropdown } from 'antd';
+
+import { Layout, Menu, Button, theme, Drawer, Space, Typography, Dropdown, Switch, ConfigProvider } from 'antd';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard,
-    User,
     LogOut,
     UserRound,
     Menu as MenuIcon,
     AlignRight,
     AlignLeft,
     UserPlus,
-    Boxes,
     Ticket,
     Briefcase,
     Funnel,
-    UserRoundCog,
-    CircleUser,
     UserCog,
-    Shield,
-    ShieldUser,
     ShieldCheck,
     UsersRound,
-    Users
+    Users,
+    Sun,
+    Moon,
+    Palette
 } from 'lucide-react';
 import './index.css';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
+
+const ThemeContext = createContext();
+
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
+};
+
+const ThemeProvider = ({ children }) => {
+    const [isDarkMode, setIsDarkMode] = useState(false); // Always light mode
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }, []);
+
+    const toggleTheme = () => {
+        // Do nothing - theme is always light
+    };
+
+    const themeConfig = {
+        algorithm: theme.defaultAlgorithm, // Always light algorithm
+        token: {
+            colorPrimary: '#E67E22',
+            colorSuccess: '#27AE60',
+            colorWarning: '#F39C12',
+            colorError: '#E74C3C',
+            colorInfo: '#3498DB',
+            colorBgContainer: '#FFFFFF',
+            colorBgElevated: '#FFFFFF',
+            colorBgLayout: '#FAF3E0',
+            colorBgBase: '#FFFFFF',
+            colorTextBase: '#2B2D42',
+            borderRadius: 12,
+            borderRadiusLG: 16,
+        },
+    };
+
+    return (
+        <ThemeContext.Provider value={{ isDarkMode, toggleTheme, themeConfig }}>
+            <ConfigProvider theme={themeConfig}>
+                {children}
+            </ConfigProvider>
+        </ThemeContext.Provider>
+    );
+};
 
 const NAVIGATION_CONFIG = {
     '/dashboard': {
@@ -44,7 +90,6 @@ const NAVIGATION_CONFIG = {
         port: 3005,
         basename: 'users'
     },
-
     '/users/permission': {
         url: 'http://localhost:3005/users/permission',
         port: 3005,
@@ -77,21 +122,16 @@ const NAVIGATION_CONFIG = {
     }
 };
 
-const AdminLayout = ({ children }) => {
-
+const AdminLayoutContent = ({ children }) => {
+    const { isDarkMode, toggleTheme } = useTheme();
     const [collapsed, setCollapsed] = useState(false);
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [themeDrawerVisible, setThemeDrawerVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [openKeys, setOpenKeys] = useState(['/sales']);
     const navigate = useNavigate();
     const location = useLocation();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    const {
-        token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
-
-
 
     const menuItems = [
         {
@@ -99,11 +139,6 @@ const AdminLayout = ({ children }) => {
             icon: <LayoutDashboard size={16} />,
             label: 'Dashboard',
         },
-        // {
-        //     key: '/users',
-        //     icon: <User size={16} />,
-        //     label: 'User',
-        // },
         {
             key: "/users",
             icon: <UsersRound size={16} />,
@@ -141,11 +176,6 @@ const AdminLayout = ({ children }) => {
                     label: 'Contacts',
                     icon: <UserPlus size={16} />,
                 },
-                // {
-                //     key: '/sales/opportunities',
-                //     label: 'Opportunities',
-                //     icon: <Boxes size={16} />,
-                // }
             ]
         },
         {
@@ -162,7 +192,10 @@ const AdminLayout = ({ children }) => {
         if (config) {
             if (config.port.toString() !== currentPort) {
                 const token = localStorage.getItem('token');
-                const url = token ? `${config.url}?token=${token}` : config.url;
+                const tenantId = localStorage.getItem('tenantId');
+                const userId = localStorage.getItem('userId');
+                const name = localStorage.getItem('name');
+                const url = token ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}` : config.url;
                 window.location.href = url;
             } else {
                 const routePath = key.replace(`/${config.basename}`, '') || '/';
@@ -198,7 +231,6 @@ const AdminLayout = ({ children }) => {
 
         return [location.pathname];
     };
-
 
     useEffect(() => {
         const currentPath = window.location.pathname;
@@ -237,11 +269,25 @@ const AdminLayout = ({ children }) => {
         window.location.href = 'http://localhost:3001/auth';
     };
 
+    const showThemeDrawer = () => {
+        setThemeDrawerVisible(true);
+    };
+
+    const onCloseThemeDrawer = () => {
+        setThemeDrawerVisible(false);
+    };
+
     const userMenuItems = [
         {
             key: 'profile',
             label: 'Profile',
             icon: <UserRound size={16} />,
+        },
+        {
+            key: 'theme',
+            label: 'Theme Settings',
+            icon: <Palette size={16} />,
+            onClick: showThemeDrawer,
         },
         {
             type: 'divider',
@@ -255,58 +301,110 @@ const AdminLayout = ({ children }) => {
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            {!isMobile && (
-                <Sider
-                    // collapsible
-                    theme='light'
-                    collapsed={collapsed}
-                    onCollapse={setCollapsed}
-                    breakpoint="lg"
-                    width={200}
-                    collapsedWidth={80}
-                    style={{
-                        overflow: 'auto',
-                        height: '100vh',
-                        position: 'fixed',
-                        left: 0,
-                        top: 0,
-                        bottom: 0,
-                    }}
-                >
-                    <div className="demo-logo-vertical" style={{
-                        height: 32,
-                        margin: 16,
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        borderRadius: borderRadiusLG,
-                    }} >
-                        {collapsed ? <Text strong style={{ fontSize: '20px', marginLeft: 10 }}>A</Text> : <Text strong style={{ fontSize: '20px', marginLeft: 8 }}>Accord CRM</Text>}
+        <Layout className="admin-layout-main">
+            <Header className="admin-header admin-header-light">
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <Button
+                            type="text"
+                            icon={isMobile ? <MenuIcon size={18} /> : (collapsed ? <AlignLeft size={18} /> : <AlignRight size={18} />)}
+                            onClick={isMobile ? showDrawer : toggleSider}
+                            className="admin-button-header header-button"
+                        />
+                        <div className="admin-logo-icon">
+                            A
+                        </div>
+                        <Text strong className="admin-text" style={{ fontSize: '20px' }}>
+                            Accord CRM
+                        </Text>
                     </div>
-                    <Menu
-                        selectedKeys={getSelectedKeys()}
-                        openKeys={openKeys}
-                        onOpenChange={setOpenKeys}
-                        mode="inline"
-                        items={menuItems}
-                        onClick={handleMenuClick}
-                    />
-                </Sider>
-            )}
 
+                    <Dropdown
+                        menu={{ items: userMenuItems }}
+                        placement="bottomRight"
+                        trigger={['click']}
+                    >
+                        <Button
+                            type="text"
+                            className="admin-button-user user-button"
+                        >
+                            <div className="admin-user-avatar">
+                                {(localStorage.getItem('name') || '').charAt(0).toUpperCase()}
+                            </div>
+                            <span style={{ fontWeight: 500 }}>
+                                {localStorage.getItem('name') || 'Demo'}
+                            </span>
+                        </Button>
+                    </Dropdown>
+                </div>
+            </Header>
+
+            <Layout className="admin-layout-content site-layout">
+                {!isMobile && (
+                    <Sider
+                        theme="light"
+                        collapsed={collapsed}
+                        onCollapse={setCollapsed}
+                        breakpoint="lg"
+                        width={250}
+                        collapsedWidth={80}
+                        style={{ padding: 0 }}
+                        className="admin-sider admin-sider-light"
+                    >
+                        <div className="admin-menu-container">
+                            <Menu
+                                theme="light"
+                                selectedKeys={getSelectedKeys()}
+                                openKeys={openKeys}
+                                onOpenChange={setOpenKeys}
+                                mode="inline"
+                                items={menuItems}
+                                onClick={handleMenuClick}
+                                style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                }}
+                            />
+                        </div>
+                    </Sider>
+                )}
+
+                <Layout className="admin-content-layout">
+                    <Content className="admin-content-main">
+                        <div className="admin-content-card">
+                            {children}
+                        </div>
+                    </Content>
+
+                    <Footer className="admin-footer-main">
+                        <div className="admin-footer-content">
+                            <Text className="admin-footer-text">
+                                © 2024 Accord CRM. All rights reserved.
+                            </Text>
+                            <div className="admin-footer-links">
+                                <Text className="admin-footer-link">Privacy Policy</Text>
+                                <Text className="admin-footer-link">Terms of Service</Text>
+                                <Text className="admin-footer-link">Support</Text>
+                            </div>
+                        </div>
+                    </Footer>
+                </Layout>
+            </Layout>
+
+            {/* Mobile Drawer */}
             {isMobile && (
                 <Drawer
-                    title="Accord Menu"
+                    title={
+                        <div className="admin-drawer-title">
+                            <div className="admin-drawer-logo">A</div>
+                            <Text strong style={{ fontSize: '18px' }}>Accord CRM</Text>
+                        </div>
+                    }
                     placement="left"
                     closable={true}
                     onClose={onCloseDrawer}
                     open={drawerVisible}
-                    width={200}
-                    styles={{
-                        body: {
-                            padding: 0,
-                            boxShadow: '3px 0 5px -1px rgba(0, 0, 0, 0.1)',
-                        }
-                    }}
+                    width={280}
                 >
                     <Menu
                         theme="light"
@@ -316,81 +414,58 @@ const AdminLayout = ({ children }) => {
                         mode="inline"
                         items={menuItems}
                         onClick={handleMenuClick}
+                        style={{
+                            border: 'none',
+                            background: 'transparent',
+                        }}
                     />
                 </Drawer>
             )}
 
-            <Layout
-                style={{
-                    marginLeft: isMobile ? 0 : (collapsed ? 80 : 200),
-                    transition: 'margin-left 0.2s',
-                }}
-                className="site-layout"
+            {/* Theme Settings Drawer */}
+            <Drawer
+                title="Theme Settings"
+                placement="right"
+                closable={true}
+                onClose={onCloseThemeDrawer}
+                open={themeDrawerVisible}
+                width={320}
             >
-                <Header
-                    style={{
-                        padding: 0,
-                        background: colorBgContainer,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        paddingLeft: 24,
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 10,
-                        // boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                    }}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Button
-                            type="text"
-                            icon={isMobile ? <MenuIcon size={16} /> : (collapsed ? <AlignLeft Left size={16} /> : <AlignRight size={16} />)}
-                            onClick={isMobile ? showDrawer : toggleSider}
-                            style={{
-                                fontSize: '16px',
-                                width: 64,
-                                height: 64,
-                            }}
-                        />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div>
+                        <Text strong style={{ fontSize: '16px', marginBottom: '12px', display: 'block' }}>
+                            Appearance
+                        </Text>
+                        <div className="admin-theme-container">
+                            <div className="admin-theme-text">
+                                <Sun size={20} />
+                                <div>
+                                    <Text strong>Light Mode</Text>
+                                    <div className="admin-theme-description">
+                                        Light theme is always active
+                                    </div>
+                                </div>
+                            </div>
+                            <Switch
+                                checked={true}
+                                disabled={true}
+                                checkedChildren={<Sun size={12} />}
+                                unCheckedChildren={<Moon size={12} />}
+                            />
+                        </div>
                     </div>
-
-                    <Space size="middle" style={{ paddingRight: 24 }}>
-                        <Dropdown
-                            menu={{ items: userMenuItems }}
-                            placement="bottomRight"
-                            trigger={['click']}
-                        >
-                            <Button type="text" icon={<UserRound size={16} />}>
-                                {user?.name || user?.email || 'Demo'}
-                            </Button>
-                        </Dropdown>
-                    </Space>
-                </Header>
-
-                <Content
-                    style={{
-                        // margin: '24px 16px',
-                        overflow: 'initial',
-                    }}
-                >
-                    <div
-                        style={{
-                            padding: 24,
-                            minHeight: 360,
-                            background: "none",
-                            borderRadius: borderRadiusLG,
-                        }}
-                    >
-                        {children}
-                    </div>
-                </Content>
-
-                <Footer style={{ textAlign: 'center' }}>
-                    Copyright ©{new Date().getFullYear()}. All right reserved.
-                </Footer>
-            </Layout>
+                </div>
+            </Drawer>
         </Layout>
     );
-}
+};
+
+const AdminLayout = ({ children }) => {
+    return (
+        <ThemeProvider>
+            <AdminLayoutContent>{children}</AdminLayoutContent>
+        </ThemeProvider>
+    );
+};
 
 export default AdminLayout;

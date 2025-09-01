@@ -1,19 +1,1010 @@
-.ant-menu-item:hover,
-.ant-menu-item-active,
-.ant-menu-submenu-title:hover {
-  background-color: #ebebeb !important;
-  color: #000 !important;
-  border-radius: none !important;
+
+/* ---------------------------------------------------- */
+/* --- Shared CRM Design System - Ant Design Optimized --- */
+/* --- Compatible with shadcn/Tailwind microservices    --- */
+/* ---------------------------------------------------- */
+
+
+
+
+/* ---------------------------------------------------- */
+/* --- Ant Design & Custom Component Styles       --- */
+/* ---------------------------------------------------- */
+
+/* General Layout & Backgrounds */
+.ant-layout-sider {
+  background: var(--color-sidebar) !important;
+  color: var(--color-sidebar-foreground) !important;
 }
 
-.ant-menu-item-selected {
-  background-color: #1c1919 !important;
-  color: white !important;
+.ant-layout-header {
+  background: var(--color-header) !important;
+  color: var(--color-header-foreground) !important;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
 }
 
-.ant-menu-item {
-  border-radius: 0 !important;
-  margin:0 !important;
+.admin-layout-main {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent whole page scroll */
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sider {
+  height: calc(100vh - 64px); /* Subtract header height */
+  background: var(--color-sidebar);
+  box-shadow: 4px 0 32px rgba(44, 62, 80, 0.15);
+  transition: all 0.3s ease;
+  overflow: hidden; /* Hide overflow on sider itself */
+}
+
+.admin-sider-light {
+   box-shadow: 4px 0 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Light gradients for sidebar */
+.admin-sider {
+   background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%) !important;
+}
+
+.admin-logo-container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 24px;
+  border-bottom: 2px solid var(--color-sidebar-border);
+  background: var(--color-header);
+}
+
+.admin-logo-container-collapsed {
+  justify-content: center;
+  padding: 0;
+}
+
+.admin-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-foreground);
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.admin-text{
+  color: var(--color-header-foreground);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.admin-menu-container {
+  height: 100%;
+  overflow-y: auto; /* Make only menu scrollable */
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+/* Custom scrollbar for menu */
+.admin-menu-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-menu-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-menu-container::-webkit-scrollbar-thumb {
+  background: var(--color-sidebar-accent);
+  border-radius: 3px;
+}
+
+.admin-menu-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+.admin-layout-content {
+  transition: all 0.3s ease;
+  flex: 1;
+  overflow: hidden;
+}
+
+.admin-content-layout {
+  height: calc(100vh - 64px); /* Subtract header height */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-header {
+  padding: 0 24px;
+  background: var(--color-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  /* z-index: 10; */
+  /* border-bottom: 2px solid var(--color-sidebar-border); */
+  box-shadow: 0 4px 16px rgba(230, 126, 34, 0.15);
+  height: 64px;
+  transition: all 0.3s ease;
+}
+
+.admin-header-light {
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Light gradients for header */
+.admin-header {
+   background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%) !important;
+}
+
+.admin-button-header {
+  font-size: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--color-header-foreground);
+}
+
+.admin-button-header:hover {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-foreground) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+  border-color: var(--color-accent) !important;
+}
+
+.admin-button-user {
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--color-header-foreground);
+}
+
+.admin-button-user:hover {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-foreground) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(39, 174, 96, 0.4) !important;
+  border-color: var(--color-accent) !important;
+}
+
+.admin-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-foreground);
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+/* Padded Content Area */
+.admin-content-main {
+  flex: 1;
+  padding: 24px;
+  background: var(--color-background);
+  overflow-y: auto; /* Make only content scrollable */
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for content */
+.admin-content-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-content-main::-webkit-scrollbar-track {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+.admin-content-main::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 4px;
+}
+
+.admin-content-main::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+.admin-content-card {
+  background: var(--color-card);
   border: none !important;
-  width: 100% !important;
+  border-radius: var(--radius);
+  min-height: 100%;
+}
+
+/* Ant Menu Overrides */
+.ant-menu {
+  background: var(--color-sidebar) !important;
+  color: var(--color-sidebar-foreground) !important;
+  border-right: none !important;
+}
+
+.ant-menu-item,
+.ant-menu-submenu-title {
+  border-radius: var(--radius) !important;
+  margin: 4px 8px !important;
+  color: var(--color-sidebar-foreground) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Updated Menu Item Selected State */
+.ant-menu-item-selected {
+  background: var(--color-sidebar-accent) !important;
+  color: var(--color-sidebar-accent-foreground) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+  border-left: none;
+  transform: translateX(4px);
+}
+
+.ant-menu-item-selected .anticon {
+  color: var(--color-sidebar-accent-foreground) !important;
+}
+
+/* Submenu parent active state */
+.ant-menu-submenu-selected > .ant-menu-submenu-title {
+  background: var(--color-sidebar-accent) !important;
+  color: var(--color-sidebar-accent-foreground) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+  transform: translateX(4px);
+}
+
+.ant-menu-submenu-selected > .ant-menu-submenu-title .anticon {
+  color: var(--color-sidebar-accent-foreground) !important;
+}
+
+.ant-menu-item:hover,
+.ant-menu-submenu-title:hover {
+  background: var(--color-sidebar-accent) !important;
+  color: var(--color-sidebar-accent-foreground) !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3) !important;
+}
+
+.ant-menu-item-selected:hover {
+  background: var(--color-sidebar-accent) !important;
+  color: var(--color-sidebar-accent-foreground) !important;
+  transform: translateX(6px);
+  box-shadow: 0 8px 24px rgba(39, 174, 96, 0.5) !important;
+}
+
+.ant-menu-sub.ant-menu-inline {
+  background: transparent !important;
+}
+
+.ant-menu-sub .ant-menu-item {
+  padding-left: 32px !important;
+  margin-left: 8px !important;
+  width: calc(100% - 16px) !important;
+}
+
+/* These hover effects are now handled in the button classes above */
+
+.ant-layout-content {
+  background: var(--color-background);
+}
+
+/* Footer styles */
+.admin-footer-main {
+  padding: 16px 24px;
+  background: var(--color-header);
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+.admin-footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-footer-text {
+  color: var(--color-header-foreground);
+  font-size: 14px;
+}
+
+.admin-footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.admin-footer-link {
+  color: var(--color-header-foreground);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.admin-footer-link:hover {
+  color: var(--color-accent);
+}
+
+/* Drawer styles */
+.admin-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-drawer-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-sidebar-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-sidebar-accent-foreground);
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Theme settings */
+.admin-theme-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+}
+
+.admin-theme-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-theme-description {
+  font-size: 12px;
+  color: var(--color-muted-foreground);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 991px) {
+  .admin-layout-content {
+    margin-left: 0 !important;
+  }
+
+  .admin-header {
+    padding: 0 16px;
+  }
+
+  .admin-content-main {
+    padding: 16px;
+  }
+
+  .admin-footer-content {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .admin-footer-links {
+    gap: 16px;
+  }
+}
+
+/* Additional responsive styles */
+@media (max-width: 768px) {
+  .admin-content-main {
+    padding: 12px;
+  }
+
+  .admin-header {
+    padding: 0 12px;
+  }
+
+  .admin-footer-main {
+    padding: 12px 16px;
+  }
+
+  .admin-footer-links {
+    gap: 12px;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* --- Modal and Overlay Fixes                     --- */
+/* ---------------------------------------------------- */
+
+/* Fix Ant Design Modal overlay to cover entire viewport properly */
+.ant-modal-mask {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 1000 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.ant-modal-wrap {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+}
+
+.ant-modal {
+  position: relative !important;
+  top: auto !important;
+  margin: 0 auto !important;
+  padding-bottom: 0 !important;
+}
+
+.ant-modal-content {
+  background: var(--color-card) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.ant-modal-header {
+  background: var(--color-card) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+
+.ant-modal-title {
+  color: var(--color-card-foreground) !important;
+  font-weight: 600 !important;
+}
+
+.ant-modal-body {
+  background: var(--color-card) !important;
+  color: var(--color-card-foreground) !important;
+}
+
+.ant-modal-footer {
+  background: var(--color-card) !important;
+  border-top: 1px solid var(--color-border) !important;
+  border-radius: 0 0 var(--radius) var(--radius) !important;
+}
+
+/* ---------------------------------------------------- */
+/* --- Button Fixes (Especially Danger/Destructive) --- */
+/* ---------------------------------------------------- */
+
+/* Fix Ant Design Button styles */
+.ant-btn {
+  border-radius: var(--radius) !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-btn-primary {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary-foreground) !important;
+}
+
+.ant-btn-primary:hover {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3) !important;
+}
+
+.ant-btn-dangerous,
+.ant-btn-danger {
+  background: var(--color-destructive) !important;
+  border-color: var(--color-destructive) !important;
+  color: #FFFFFF !important;
+}
+
+.ant-btn-dangerous:hover,
+.ant-btn-danger:hover {
+  background: var(--color-destructive) !important;
+  border-color: var(--color-destructive) !important;
+  color: #FFFFFF !important;
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4) !important;
+}
+
+.ant-btn-default {
+  background: var(--color-card) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-card-foreground) !important;
+}
+
+.ant-btn-default:hover {
+  background: var(--color-muted) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-card-foreground) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ---------------------------------------------------- */
+/* --- Form and Input Fixes                        --- */
+/* ---------------------------------------------------- */
+
+.ant-input {
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius) !important;
+  color: var(--color-card-foreground) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-input:hover {
+  border-color: var(--color-accent) !important;
+}
+
+.ant-input:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2) !important;
+}
+
+.ant-input::placeholder {
+  color: var(--color-muted-foreground) !important;
+}
+
+/* Form labels */
+.ant-form-item-label > label {
+  color: var(--color-card-foreground) !important;
+  font-weight: 500 !important;
+}
+
+/* Select dropdown */
+.ant-select {
+  color: var(--color-card-foreground) !important;
+}
+
+.ant-select-selector {
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius) !important;
+}
+
+.ant-select-selector:hover {
+  border-color: var(--color-accent) !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2) !important;
+}
+
+/* Dropdown menu */
+.ant-select-dropdown {
+  background: var(--color-card) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.ant-select-item {
+  color: var(--color-card-foreground) !important;
+}
+
+.ant-select-item-option-selected {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-foreground) !important;
+}
+
+.ant-select-item-option-active {
+  background: var(--color-muted) !important;
+}
+
+/* Close button in modal */
+.ant-modal-close {
+  color: var(--color-muted-foreground) !important;
+}
+
+.ant-modal-close:hover {
+  color: var(--color-destructive) !important;
+}
+
+
+/* ---------------------------------------------------- */
+/* --- Table Styling in Modals                     --- */
+/* ---------------------------------------------------- */
+
+.ant-table {
+  background: var(--color-card) !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--color-muted) !important;
+  color: var(--color-card-foreground) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  font-weight: 600 !important;
+}
+
+.ant-table-tbody > tr > td {
+  background: var(--color-card) !important;
+  color: var(--color-card-foreground) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--color-muted) !important;
+}
+
+/* ---------------------------------------------------- */
+/* --- Notification and Message Styling            --- */
+/* ---------------------------------------------------- */
+
+.ant-notification {
+  z-index: 1100 !important;
+}
+
+.ant-message {
+  z-index: 1100 !important;
+}
+
+.ant-notification-notice {
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ant-notification-notice-message {
+  color: var(--color-card-foreground) !important;
+  font-weight: 600 !important;
+}
+
+.ant-notification-notice-description {
+  color: var(--color-muted-foreground) !important;
+}
+
+/* ---------------------------------------------------- */
+/* --- Shared Utility Classes (Cross-Framework)    --- */
+/* ---------------------------------------------------- */
+
+/* These classes can be used by both Ant Design and shadcn components */
+.crm-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.crm-button-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.crm-button-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+}
+
+.crm-button-destructive {
+  background: var(--color-destructive);
+  color: #FFFFFF;
+  border: 1px solid var(--color-destructive);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.crm-button-destructive:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+.crm-text-primary {
+  color: var(--color-primary);
+}
+
+.crm-text-muted {
+  color: var(--color-muted-foreground);
+}
+
+.crm-bg-primary {
+  background: var(--color-primary);
+}
+
+.crm-bg-primary-light {
+  background: var(--color-primary-light);
+}
+
+.crm-bg-primary-dark {
+  background: var(--color-primary-dark);
+}
+
+.crm-bg-secondary {
+  background: var(--color-secondary);
+}
+
+.crm-bg-secondary-light {
+  background: var(--color-secondary-light);
+}
+
+.crm-bg-secondary-dark {
+  background: var(--color-secondary-dark);
+}
+
+.crm-bg-accent {
+  background: var(--color-accent);
+}
+
+.crm-bg-accent-light {
+  background: var(--color-accent-light);
+}
+
+.crm-bg-accent-dark {
+  background: var(--color-accent-dark);
+}
+
+.crm-bg-destructive {
+  background: var(--color-destructive);
+}
+
+.crm-bg-destructive-light {
+  background: var(--color-destructive-light);
+}
+
+.crm-bg-destructive-dark {
+  background: var(--color-destructive-dark);
+}
+
+.crm-bg-success {
+  background: var(--color-success);
+}
+
+.crm-bg-warning {
+  background: var(--color-warning);
+}
+
+.crm-bg-info {
+  background: var(--color-info);
+}
+
+.crm-text-primary {
+  color: var(--color-primary);
+}
+
+.crm-text-primary-light {
+  color: var(--color-primary-light);
+}
+
+.crm-text-primary-dark {
+  color: var(--color-primary-dark);
+}
+
+.crm-text-secondary {
+  color: var(--color-secondary);
+}
+
+.crm-text-secondary-light {
+  color: var(--color-secondary-light);
+}
+
+.crm-text-secondary-dark {
+  color: var(--color-secondary-dark);
+}
+
+.crm-text-accent {
+  color: var(--color-accent);
+}
+
+.crm-text-accent-light {
+  color: var(--color-accent-light);
+}
+
+.crm-text-accent-dark {
+  color: var(--color-accent-dark);
+}
+
+.crm-text-destructive {
+  color: var(--color-destructive);
+}
+
+.crm-text-destructive-light {
+  color: var(--color-destructive-light);
+}
+
+.crm-text-destructive-dark {
+  color: var(--color-destructive-dark);
+}
+
+.crm-text-success {
+  color: var(--color-success);
+}
+
+.crm-text-warning {
+  color: var(--color-warning);
+}
+
+.crm-text-info {
+  color: var(--color-info);
+}
+
+/* Spacing utilities */
+.crm-space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.crm-space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* ---------------------------------------------------- */
+/* --- Ant Design Global Overrides                 --- */
+/* ---------------------------------------------------- */
+
+/* Ensure Ant Design components inherit our design system */
+.ant-layout {
+  background: var(--color-background) !important;
+}
+
+.ant-layout-content {
+  background: var(--color-background) !important;
+}
+
+/* Ant Design Card overrides */
+.ant-card {
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius) !important;
+}
+
+.ant-card-head {
+  background: var(--color-card) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  color: var(--color-card-foreground) !important;
+}
+
+.ant-card-body {
+  background: var(--color-card) !important;
+  color: var(--color-card-foreground) !important;
+}
+
+/* Ant Design Typography */
+.ant-typography {
+  color: var(--color-foreground) !important;
+}
+
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography h4,
+.ant-typography h5,
+.ant-typography h6 {
+  color: var(--color-foreground) !important;
+}
+
+/* Ant Design Divider */
+.ant-divider {
+  border-color: var(--color-border) !important;
+}
+
+
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #FFFFFF;
+  --foreground: #2B2D42;
+  --card: #FFFFFF;
+  --card-foreground: #2B2D42;
+  --popover: #FFFFFF;
+  --popover-foreground: #2B2D42;
+  --primary: #E67E22;
+  --primary-foreground: #FFFFFF;
+  --secondary: #3498DB;
+  --secondary-foreground: #FFFFFF;
+  --muted: #ECF0F1;
+  --muted-foreground: #7F8C8D;
+  --accent: #27AE60;
+  --accent-foreground: #FFFFFF;
+  --destructive: #E74C3C;
+  --border: #BDC3C7;
+  --input: #BDC3C7;
+  --ring: #27AE60;
+  --chart-1: #E67E22;
+  --chart-2: #3498DB;
+  --chart-3: #27AE60;
+  --chart-4: #F39C12;
+  --chart-5: #9B59B6;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2B2D42;
+  --sidebar-primary: #E67E22;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #27AE60;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #BDC3C7;
+  --sidebar-ring: #27AE60;
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
