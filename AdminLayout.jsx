@@ -252,9 +252,9 @@ const AdminLayoutContent = ({ children }) => {
                 if (key === "/users/permission" && currentPath.includes("/permission")) return ["/users/permission"];
                 if (key === "/tickets" && currentPath.includes("tickets")) return ["/tickets"];
 
-                if (key === "/inventory/products" && currentPath.includes("inventory")) return ["/inventory/products"];
-                if (key === "/inventory/categories" && currentPath.includes("categories")) return ["/inventory/categories"];
 
+                if (key === "/inventory/categories" && currentPath.includes("/categories")) return ["/inventory/categories"];
+                if (key === "/inventory/products" && currentPath.includes("/products")) return ["/inventory/products"];
                 if (key === "/sales/leads" && currentPath.includes("/leads")) return ["/sales/leads"];
                 if (key === "/sales/contacts" && currentPath.includes("/contacts")) return ["/sales/contacts"];
                 if (key === "/sales/opportunities" && currentPath.includes("/opportunities")) return ["/sales/opportunities"];
