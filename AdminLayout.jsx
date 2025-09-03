@@ -208,7 +208,7 @@ const AdminLayoutContent = ({ children }) => {
                 },
                 {
                     key: '/inventory/categories',
-                    label: 'Product Categories',
+                    label: 'Categories',
                     icon: <Layers size={16} />,
                 },
             ]
@@ -255,6 +255,7 @@ const AdminLayoutContent = ({ children }) => {
 
                 if (key === "/inventory/categories" && currentPath.includes("/categories")) return ["/inventory/categories"];
                 if (key === "/inventory/products" && currentPath.includes("/products")) return ["/inventory/products"];
+
                 if (key === "/sales/leads" && currentPath.includes("/leads")) return ["/sales/leads"];
                 if (key === "/sales/contacts" && currentPath.includes("/contacts")) return ["/sales/contacts"];
                 if (key === "/sales/opportunities" && currentPath.includes("/opportunities")) return ["/sales/opportunities"];
