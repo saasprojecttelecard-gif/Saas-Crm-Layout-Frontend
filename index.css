@@ -185,11 +185,12 @@
 }
 
 .admin-button-user:hover {
-  background: var(--color-accent) !important;
-  color: var(--color-accent-foreground) !important;
-  transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.15) !important;
+  /* background: var(--color-accent) !important;
+  color: var(--color-accent-foreground) !important; */
+  /* transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(39, 174, 96, 0.4) !important;
-  border-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important; */
 }
 
 .admin-user-avatar {
@@ -243,7 +244,7 @@
 
 /* Ant Menu Overrides */
 .ant-menu {
-  background: var(--color-sidebar) !important;
+  /* background: var(--color-sidebar) !important; */
   color: var(--color-sidebar-foreground) !important;
   border-right: none !important;
 }
@@ -318,8 +319,12 @@
 .admin-footer-main {
   padding: 16px 24px;
   background: var(--color-header);
-  border-top: 1px solid var(--color-border);
-  flex-shrink: 0; /* Prevent footer from shrinking */
+  /* border-top: 1px solid var(--color-border); */
+  flex-shrink: 0; 
+  
+  background: var(--color-sidebar);
+  box-shadow: 4px 0 32px rgba(44, 62, 80, 0.15);
+  text-align: center;
 }
 
 .admin-footer-content {

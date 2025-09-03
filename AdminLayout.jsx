@@ -19,7 +19,10 @@ import {
     Users,
     Sun,
     Moon,
-    Palette
+    Palette,
+    Package,
+    Layers,
+    Boxes
 } from 'lucide-react';
 import './index.css';
 
@@ -110,8 +113,13 @@ const NAVIGATION_CONFIG = {
         port: 3004,
         basename: 'sales'
     },
-    '/inventory': {
-        url: 'http://localhost:3003/inventory',
+    '/inventory/products': {
+        url: 'http://localhost:3003/inventory/products',
+        port: 3003,
+        basename: 'inventory'
+    },
+    '/inventory/categories': {
+        url: 'http://localhost:3003/inventory/categories',
         port: 3003,
         basename: 'inventory'
     },
@@ -119,6 +127,11 @@ const NAVIGATION_CONFIG = {
         url: 'http://localhost:3006/tickets',
         port: 3006,
         basename: 'tickets'
+    },
+    '/products': {
+        url: 'http://localhost:3003/products',
+        port: 3003,
+        basename: 'inventory'
     }
 };
 
@@ -182,6 +195,23 @@ const AdminLayoutContent = ({ children }) => {
             key: '/tickets',
             icon: <Ticket size={16} />,
             label: 'Ticket',
+        }, ,
+        {
+            key: '/inventory',
+            icon: <Boxes size={16} />,
+            label: 'Inventory Management',
+            children: [
+                {
+                    key: '/inventory/products',
+                    label: 'Products',
+                    icon: <Package size={16} />,
+                },
+                {
+                    key: '/inventory/categories',
+                    label: 'Product Categories',
+                    icon: <Layers size={16} />,
+                },
+            ]
         },
     ];
 
@@ -221,7 +251,9 @@ const AdminLayoutContent = ({ children }) => {
                 if (key === "/users/role" && currentPath.includes("/role")) return ["/users/role"];
                 if (key === "/users/permission" && currentPath.includes("/permission")) return ["/users/permission"];
                 if (key === "/tickets" && currentPath.includes("tickets")) return ["/tickets"];
-                if (key === "/inventory" && currentPath.includes("inventory")) return ["/inventory"];
+
+                if (key === "/inventory/products" && currentPath.includes("inventory")) return ["/inventory/products"];
+                if (key === "/inventory/categories" && currentPath.includes("categories")) return ["/inventory/categories"];
 
                 if (key === "/sales/leads" && currentPath.includes("/leads")) return ["/sales/leads"];
                 if (key === "/sales/contacts" && currentPath.includes("/contacts")) return ["/sales/contacts"];
@@ -314,7 +346,7 @@ const AdminLayoutContent = ({ children }) => {
                         <div className="admin-logo-icon">
                             A
                         </div>
-                        <Text strong className="admin-text" style={{ fontSize: '20px' }}>
+                        <Text strong className="text-primary" style={{ fontSize: '20px' }}>
                             Accord CRM
                         </Text>
                     </div>
@@ -377,7 +409,10 @@ const AdminLayoutContent = ({ children }) => {
                     </Content>
 
                     <Footer className="admin-footer-main">
-                        <div className="admin-footer-content">
+                        <Text className="admin-footer-text">
+                            © 2024 Accord CRM. All rights reserved.
+                        </Text>
+                        {/* <div className="admin-footer-content">
                             <Text className="admin-footer-text">
                                 © 2024 Accord CRM. All rights reserved.
                             </Text>
@@ -386,7 +421,7 @@ const AdminLayoutContent = ({ children }) => {
                                 <Text className="admin-footer-link">Terms of Service</Text>
                                 <Text className="admin-footer-link">Support</Text>
                             </div>
-                        </div>
+                        </div> */}
                     </Footer>
                 </Layout>
             </Layout>
