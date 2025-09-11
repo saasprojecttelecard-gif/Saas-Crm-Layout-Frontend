@@ -22,7 +22,8 @@ import {
     Palette,
     Package,
     Layers,
-    Boxes
+    Boxes,
+    Lightbulb
 } from 'lucide-react';
 import './index.css';
 
@@ -146,6 +147,18 @@ const AdminLayoutContent = ({ children }) => {
     const location = useLocation();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+    const rootSubmenuKeys = ['/users', '/sales', '/inventory'];
+
+    const onOpenChange = (keys) => {
+        const latestOpenKey = keys.find((key) => !openKeys.includes(key));
+        if (rootSubmenuKeys.includes(latestOpenKey)) {
+            setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+        } else {
+            setOpenKeys(keys);
+        }
+    };
+
+
     const menuItems = [
         {
             key: '/dashboard',
@@ -189,6 +202,11 @@ const AdminLayoutContent = ({ children }) => {
                     label: 'Contacts',
                     icon: <UserPlus size={16} />,
                 },
+                {
+                    key: '/sales/opportunities',
+                    label: 'Opportunities',
+                    icon: <Lightbulb size={16} />,
+                },
             ]
         },
         {
@@ -215,6 +233,30 @@ const AdminLayoutContent = ({ children }) => {
         },
     ];
 
+    // const handleMenuClick = ({ key }) => {
+    //     const config = NAVIGATION_CONFIG[key];
+    //     const currentPort = window.location.port;
+
+    //     if (config) {
+    //         if (config.port.toString() !== currentPort) {
+    //             const token = localStorage.getItem('token');
+    //             const tenantId = localStorage.getItem('tenantId');
+    //             const userId = localStorage.getItem('userId');
+    //             const name = localStorage.getItem('name');
+    //             const url = token ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}` : config.url;
+    //             window.location.href = url;
+    //         } else {
+    //             const routePath = key.replace(`/${config.basename}`, '') || '/';
+    //             navigate(routePath);
+    //         }
+    //     } else {
+    //         navigate(key);
+    //     }
+
+    //     if (isMobile) {
+    //         setDrawerVisible(false);
+    //     }
+    // };
     const handleMenuClick = ({ key }) => {
         const config = NAVIGATION_CONFIG[key];
         const currentPort = window.location.port;
@@ -225,7 +267,9 @@ const AdminLayoutContent = ({ children }) => {
                 const tenantId = localStorage.getItem('tenantId');
                 const userId = localStorage.getItem('userId');
                 const name = localStorage.getItem('name');
-                const url = token ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}` : config.url;
+                const url = token
+                    ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
+                    : config.url;
                 window.location.href = url;
             } else {
                 const routePath = key.replace(`/${config.basename}`, '') || '/';
@@ -234,6 +278,12 @@ const AdminLayoutContent = ({ children }) => {
         } else {
             navigate(key);
         }
+
+        // 👇 Add this: open the right parent submenu
+        if (key.startsWith('/users')) setOpenKeys(['/users']);
+        else if (key.startsWith('/sales')) setOpenKeys(['/sales']);
+        else if (key.startsWith('/inventory')) setOpenKeys(['/inventory']);
+        else setOpenKeys([]);
 
         if (isMobile) {
             setDrawerVisible(false);
@@ -385,7 +435,7 @@ const AdminLayoutContent = ({ children }) => {
                         className="admin-sider admin-sider-light"
                     >
                         <div className="admin-menu-container">
-                            <Menu
+                            {/* <Menu
                                 theme="light"
                                 selectedKeys={getSelectedKeys()}
                                 openKeys={openKeys}
@@ -397,7 +447,21 @@ const AdminLayoutContent = ({ children }) => {
                                     border: 'none',
                                     background: 'transparent',
                                 }}
+                            /> */}
+                            <Menu
+                                theme="light"
+                                selectedKeys={getSelectedKeys()}
+                                openKeys={openKeys}
+                                onOpenChange={onOpenChange}
+                                mode="inline"
+                                items={menuItems}
+                                onClick={handleMenuClick}
+                                style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                }}
                             />
+
                         </div>
                     </Sider>
                 )}
@@ -442,7 +506,7 @@ const AdminLayoutContent = ({ children }) => {
                     open={drawerVisible}
                     width={280}
                 >
-                    <Menu
+                    {/* <Menu
                         theme="light"
                         selectedKeys={getSelectedKeys()}
                         openKeys={openKeys}
@@ -454,7 +518,21 @@ const AdminLayoutContent = ({ children }) => {
                             border: 'none',
                             background: 'transparent',
                         }}
+                    /> */}
+                    <Menu
+                        theme="light"
+                        selectedKeys={getSelectedKeys()}
+                        openKeys={openKeys}
+                        onOpenChange={onOpenChange}
+                        mode="inline"
+                        items={menuItems}
+                        onClick={handleMenuClick}
+                        style={{
+                            border: 'none',
+                            background: 'transparent',
+                        }}
                     />
+
                 </Drawer>
             )}
 
