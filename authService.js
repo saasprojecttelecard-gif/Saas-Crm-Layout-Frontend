@@ -1,3 +1,5 @@
+import apiClient from './apiClient';
+
 class AuthService {
     constructor() {
         this.TOKEN_KEY = 'token';
@@ -35,20 +37,14 @@ class AuthService {
 
     async login(credentials) {
         try {
-            const response = await fetch('http://192.168.88.71:3000/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...credentials,
-                    licenseKey: "DEMO-LICENSE-KEY-123"
-                }),
+            const response = await apiClient.post('/auth/login', {
+                ...credentials,
+                licenseKey: "DEMO-LICENSE-KEY-123"
             });
 
-            const data = await response.json();
+            const data = response.data;
 
-            if (response.ok && data.access_token) {
+            if (data.access_token) {
                 this.setToken(data.access_token);
                 if (data.user) {
                     this.setUser(data.user);
@@ -59,14 +55,22 @@ class AuthService {
             }
         } catch (error) {
             console.error('Login error:', error);
-            return { success: false, error: 'Network error occurred' };
+            const errorMessage = error.response?.data?.message || 'Network error occurred';
+            return { success: false, error: errorMessage };
         }
     }
 
-    logout() {
-        this.removeToken();
-        this.removeUser();
-        window.location.href = 'http://localhost:3001/auth';
+    async logout() {
+        try {
+            await apiClient.post('/auth/logout');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            this.removeToken();
+            this.removeUser();
+            localStorage.clear();
+            window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3001/auth';
+        }
     }
 }
 

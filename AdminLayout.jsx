@@ -23,9 +23,13 @@ import {
     Package,
     Layers,
     Boxes,
-    Lightbulb
+    Lightbulb,
+    BadgePercent,
+    Mail,
+    Megaphone
 } from 'lucide-react';
 import './index.css';
+import apiClient from './apiClient';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -133,6 +137,16 @@ const NAVIGATION_CONFIG = {
         url: 'http://localhost:3003/products',
         port: 3003,
         basename: 'inventory'
+    },
+    '/marketing/email-templates': {
+        url: 'http://localhost:3007/marketing/email-templates',
+        port: 3007,
+        basename: 'marketing'
+    },
+    '/marketing/campaigns': {
+        url: 'http://localhost:3007/marketing/campaigns',
+        port: 3007,
+        basename: 'marketing'
     }
 };
 
@@ -142,12 +156,12 @@ const AdminLayoutContent = ({ children }) => {
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [themeDrawerVisible, setThemeDrawerVisible] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [openKeys, setOpenKeys] = useState(['/sales']);
+    const [openKeys, setOpenKeys] = useState([]);
     const navigate = useNavigate();
     const location = useLocation();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    const rootSubmenuKeys = ['/users', '/sales', '/inventory'];
+    const rootSubmenuKeys = ['/users', '/sales', '/inventory', '/marketing'];
 
     const onOpenChange = (keys) => {
         const latestOpenKey = keys.find((key) => !openKeys.includes(key));
@@ -213,7 +227,7 @@ const AdminLayoutContent = ({ children }) => {
             key: '/tickets',
             icon: <Ticket size={16} />,
             label: 'Ticket',
-        }, ,
+        },
         {
             key: '/inventory',
             icon: <Boxes size={16} />,
@@ -228,6 +242,23 @@ const AdminLayoutContent = ({ children }) => {
                     key: '/inventory/categories',
                     label: 'Categories',
                     icon: <Layers size={16} />,
+                },
+            ]
+        },
+        {
+            key: '/marketing',
+            icon: <BadgePercent size={16} />,
+            label: 'Marketings',
+            children: [
+                {
+                    key: '/marketing/email-templates',
+                    label: 'Email Templates',
+                    icon: <Mail size={16} />,
+                },
+                {
+                    key: '/marketing/campaigns',
+                    label: 'Campaigns',
+                    icon: <Megaphone size={16} />,
                 },
             ]
         },
@@ -279,11 +310,17 @@ const AdminLayoutContent = ({ children }) => {
             navigate(key);
         }
 
-        // 👇 Add this: open the right parent submenu
-        if (key.startsWith('/users')) setOpenKeys(['/users']);
-        else if (key.startsWith('/sales')) setOpenKeys(['/sales']);
-        else if (key.startsWith('/inventory')) setOpenKeys(['/inventory']);
-        else setOpenKeys([]);
+        if (key.startsWith('/users')) {
+            setOpenKeys(['/users']);
+        } else if (key.startsWith('/sales')) {
+            setOpenKeys(['/sales']);
+        } else if (key.startsWith('/inventory')) {
+            setOpenKeys(['/inventory']);
+        } else if (key.startsWith('/marketing')) {
+            setOpenKeys(['/marketing']);
+        } else {
+            setOpenKeys([]);
+        }
 
         if (isMobile) {
             setDrawerVisible(false);
@@ -309,6 +346,9 @@ const AdminLayoutContent = ({ children }) => {
                 if (key === "/sales/leads" && currentPath.includes("/leads")) return ["/sales/leads"];
                 if (key === "/sales/contacts" && currentPath.includes("/contacts")) return ["/sales/contacts"];
                 if (key === "/sales/opportunities" && currentPath.includes("/opportunities")) return ["/sales/opportunities"];
+
+                if (key === "/marketing/email-templates" && currentPath.includes("/email-templates")) return ["/marketing/email-templates"];
+                if (key === "/marketing/campaigns" && currentPath.includes("/campaigns")) return ["/marketing/campaigns"];
             }
         }
 
@@ -317,9 +357,27 @@ const AdminLayoutContent = ({ children }) => {
 
     useEffect(() => {
         const currentPath = window.location.pathname;
-        if (currentPath.includes('/leads') || currentPath.includes('/contacts') || currentPath.includes('/opportunities')) {
-            setOpenKeys(['/sales']);
+        const currentPort = window.location.port;
+
+        for (const [key, config] of Object.entries(NAVIGATION_CONFIG)) {
+            if (config.port.toString() === currentPort) {
+                if (key.startsWith('/users') && (currentPath.includes('/users') || currentPath.includes('/role') || currentPath.includes('/permission'))) {
+                    setOpenKeys(['/users']);
+                    return;
+                } else if (key.startsWith('/sales') && (currentPath.includes('/leads') || currentPath.includes('/contacts') || currentPath.includes('/opportunities'))) {
+                    setOpenKeys(['/sales']);
+                    return;
+                } else if (key.startsWith('/inventory') && (currentPath.includes('/products') || currentPath.includes('/categories'))) {
+                    setOpenKeys(['/inventory']);
+                    return;
+                } else if (key.startsWith('/marketing') && (currentPath.includes('/email-templates') || currentPath.includes('/campaigns'))) {
+                    setOpenKeys(['/marketing']);
+                    return;
+                }
+            }
         }
+
+        setOpenKeys([]);
     }, [location.pathname]);
 
     useEffect(() => {
@@ -346,10 +404,15 @@ const AdminLayoutContent = ({ children }) => {
         setDrawerVisible(false);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = 'http://localhost:3001/auth';
+    const handleLogout = async () => {
+        try {
+            await apiClient.post('/auth/logout');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            localStorage.clear();
+            window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3001/auth';
+        }
     };
 
     const showThemeDrawer = () => {
@@ -361,20 +424,20 @@ const AdminLayoutContent = ({ children }) => {
     };
 
     const userMenuItems = [
-        {
-            key: 'profile',
-            label: 'Profile',
-            icon: <UserRound size={16} />,
-        },
-        {
-            key: 'theme',
-            label: 'Theme Settings',
-            icon: <Palette size={16} />,
-            onClick: showThemeDrawer,
-        },
-        {
-            type: 'divider',
-        },
+        // {
+        //     key: 'profile',
+        //     label: 'Profile',
+        //     icon: <UserRound size={16} />,
+        // },
+        // {
+        //     key: 'theme',
+        //     label: 'Theme Settings',
+        //     icon: <Palette size={16} />,
+        //     onClick: showThemeDrawer,
+        // },
+        // {
+        //     type: 'divider',
+        // },
         {
             key: 'logout',
             label: 'Logout',
@@ -436,21 +499,22 @@ const AdminLayoutContent = ({ children }) => {
                     >
                         <div className="admin-menu-container">
                             {/* <Menu
-                                theme="light"
-                                selectedKeys={getSelectedKeys()}
-                                openKeys={openKeys}
-                                onOpenChange={setOpenKeys}
-                                mode="inline"
-                                items={menuItems}
-                                onClick={handleMenuClick}
-                                style={{
-                                    border: 'none',
-                                    background: 'transparent',
-                                }}
-                            /> */}
+                                    theme="light"
+                                    selectedKeys={getSelectedKeys()}
+                                    openKeys={openKeys}
+                                    onOpenChange={setOpenKeys}
+                                    mode="inline"
+                                    items={menuItems}
+                                    onClick={handleMenuClick}
+                                    style={{
+                                        border: 'none',
+                                        background: 'transparent',
+                                    }}
+                                /> */}
                             <Menu
                                 theme="light"
                                 selectedKeys={getSelectedKeys()}
+                                // selectedKeys={["/campaigns"]}
                                 openKeys={openKeys}
                                 onOpenChange={onOpenChange}
                                 mode="inline"
@@ -478,15 +542,15 @@ const AdminLayoutContent = ({ children }) => {
                             © 2024 Accord CRM. All rights reserved.
                         </Text>
                         {/* <div className="admin-footer-content">
-                            <Text className="admin-footer-text">
-                                © 2024 Accord CRM. All rights reserved.
-                            </Text>
-                            <div className="admin-footer-links">
-                                <Text className="admin-footer-link">Privacy Policy</Text>
-                                <Text className="admin-footer-link">Terms of Service</Text>
-                                <Text className="admin-footer-link">Support</Text>
-                            </div>
-                        </div> */}
+                                <Text className="admin-footer-text">
+                                    © 2024 Accord CRM. All rights reserved.
+                                </Text>
+                                <div className="admin-footer-links">
+                                    <Text className="admin-footer-link">Privacy Policy</Text>
+                                    <Text className="admin-footer-link">Terms of Service</Text>
+                                    <Text className="admin-footer-link">Support</Text>
+                                </div>
+                            </div> */}
                     </Footer>
                 </Layout>
             </Layout>
@@ -507,18 +571,18 @@ const AdminLayoutContent = ({ children }) => {
                     width={280}
                 >
                     {/* <Menu
-                        theme="light"
-                        selectedKeys={getSelectedKeys()}
-                        openKeys={openKeys}
-                        onOpenChange={setOpenKeys}
-                        mode="inline"
-                        items={menuItems}
-                        onClick={handleMenuClick}
-                        style={{
-                            border: 'none',
-                            background: 'transparent',
-                        }}
-                    /> */}
+                            theme="light"
+                            selectedKeys={getSelectedKeys()}
+                            openKeys={openKeys}
+                            onOpenChange={setOpenKeys}
+                            mode="inline"
+                            items={menuItems}
+                            onClick={handleMenuClick}
+                            style={{
+                                border: 'none',
+                                background: 'transparent',
+                            }}
+                        /> */}
                     <Menu
                         theme="light"
                         selectedKeys={getSelectedKeys()}
@@ -583,3 +647,4 @@ const AdminLayout = ({ children }) => {
 };
 
 export default AdminLayout;
+
