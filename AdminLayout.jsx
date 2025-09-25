@@ -84,12 +84,12 @@ const ThemeProvider = ({ children }) => {
 
 const NAVIGATION_CONFIG = {
     '/dashboard': {
-        url: 'http://localhost:3002/dashboard',
+        url: 'https://dashboard.tclaccord.com/dashboard',
         port: 3002,
         basename: 'dashboard'
     },
     '/users': {
-        url: 'http://localhost:3005/users',
+        url: 'https://users.tclaccord.com/users',
         port: 3005,
         basename: 'users'
     },
