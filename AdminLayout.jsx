@@ -94,27 +94,27 @@ const NAVIGATION_CONFIG = {
         basename: 'users'
     },
     '/users/role': {
-        url: 'https://members.tclaccord.com/role',
+        url: 'https://members.tclaccord.com/users/role',
         port: 3005,
         basename: 'users'
     },
     '/users/permission': {
-        url: 'https://members.tclaccord.com/permission',
+        url: 'https://members.tclaccord.com/users/permission',
         port: 3005,
         basename: 'users'
     },
     '/sales/leads': {
-        url: 'https://voucher.tclaccord.com/sales/leads',
+        url: 'https://transaction.tclaccord.com/sales/leads',
         port: 3004,
         basename: 'sales'
     },
     '/sales/contacts': {
-        url: 'https://voucher.tclaccord.com/sales/contacts',
+        url: 'https://transaction.tclaccord.com/sales/contacts',
         port: 3004,
         basename: 'sales'
     },
     '/sales/opportunities': {
-        url: 'https://voucher.tclaccord.com/sales/opportunities',
+        url: 'https://transaction.tclaccord.com/sales/opportunities',
         port: 3004,
         basename: 'sales'
     },
@@ -283,80 +283,144 @@ const AdminLayoutContent = ({ children }) => {
     //         setDrawerVisible(false);
     //     }
     // };
+    // const handleMenuClick = ({ key }) => {
+    //     const config = NAVIGATION_CONFIG[key];
+    //     const isDev = import.meta.env.DEV;
+
+    //     if (config) {
+    //         let url;
+    //         if (isDev) {
+    //             const currentPort = window.location.port;
+    //             if (config.port.toString() !== currentPort) {
+    //                 url = `http://localhost:${config.port}${key}`;
+    //             } else {
+    //                 navigate(key);
+    //                 return;
+    //             }
+    //         } else {
+    //             url = config.url;
+    //         }
+
+    //         const token = localStorage.getItem('token');
+    //         const tenantId = localStorage.getItem('tenantId');
+    //         const userId = localStorage.getItem('userId');
+    //         const name = localStorage.getItem('name');
+    //         url = token
+    //             ? `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
+    //             : url;
+    //         window.location.href = url;
+    //     } else {
+    //         navigate(key);
+    //     }
+
+    //     if (key.startsWith('/users')) {
+    //         setOpenKeys(['/users']);
+    //     } else if (key.startsWith('/sales')) {
+    //         setOpenKeys(['/sales']);
+    //     } else if (key.startsWith('/inventory')) {
+    //         setOpenKeys(['/inventory']);
+    //     } else if (key.startsWith('/marketing')) {
+    //         setOpenKeys(['/marketing']);
+    //     } else {
+    //         setOpenKeys([]);
+    //     }
+
+    //     if (isMobile) {
+    //         setDrawerVisible(false);
+    //     }
+    // };
+
     const handleMenuClick = ({ key }) => {
         const config = NAVIGATION_CONFIG[key];
         const isDev = import.meta.env.DEV;
 
         if (config) {
-            let url;
-            if (isDev) {
-                const currentPort = window.location.port;
-                if (config.port.toString() !== currentPort) {
-                    url = `http://localhost:${config.port}${key}`;
-                } else {
-                    navigate(key);
-                    return;
-                }
-            } else {
-                url = config.url;
-            }
+            // check if current host matches the config host
+            const currentHost = window.location.hostname;
+            const configHost = new URL(config.url).hostname;
 
-            const token = localStorage.getItem('token');
-            const tenantId = localStorage.getItem('tenantId');
-            const userId = localStorage.getItem('userId');
-            const name = localStorage.getItem('name');
-            url = token
-                ? `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
-                : url;
-            window.location.href = url;
+            if (currentHost === configHost) {
+                // same app → just navigate within React Router
+                navigate(key);
+            } else {
+                // different app → redirect with token
+                let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
+
+                const token = localStorage.getItem("token");
+                const tenantId = localStorage.getItem("tenantId");
+                const userId = localStorage.getItem("userId");
+                const name = localStorage.getItem("name");
+                url = token
+                    ? `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
+                    : url;
+
+                window.location.href = url;
+            }
         } else {
             navigate(key);
         }
 
-        if (key.startsWith('/users')) {
-            setOpenKeys(['/users']);
-        } else if (key.startsWith('/sales')) {
-            setOpenKeys(['/sales']);
-        } else if (key.startsWith('/inventory')) {
-            setOpenKeys(['/inventory']);
-        } else if (key.startsWith('/marketing')) {
-            setOpenKeys(['/marketing']);
-        } else {
-            setOpenKeys([]);
-        }
+        // open correct submenu
+        if (key.startsWith("/users")) setOpenKeys(["/users"]);
+        else if (key.startsWith("/sales")) setOpenKeys(["/sales"]);
+        else if (key.startsWith("/inventory")) setOpenKeys(["/inventory"]);
+        else if (key.startsWith("/marketing")) setOpenKeys(["/marketing"]);
+        else setOpenKeys([]);
 
-        if (isMobile) {
-            setDrawerVisible(false);
-        }
+        if (isMobile) setDrawerVisible(false);
     };
+
+    // const getSelectedKeys = () => {
+    //     const currentPort = window.location.port;
+    //     const currentPath = window.location.pathname;
+
+    //     for (const [key, config] of Object.entries(NAVIGATION_CONFIG)) {
+    //         if (config.port.toString() === currentPort) {
+    //             if (key === "/dashboard" && currentPath.includes("dashboard")) return ["/dashboard"];
+    //             if (key === "/users" && currentPath === "/users") return ["/users"];
+    //             if (key === "/users/role" && currentPath.includes("/role")) return ["/users/role"];
+    //             if (key === "/users/permission" && currentPath.includes("/permission")) return ["/users/permission"];
+    //             if (key === "/tickets" && currentPath.includes("tickets")) return ["/tickets"];
+
+
+    //             if (key === "/inventory/categories" && currentPath.includes("/categories")) return ["/inventory/categories"];
+    //             if (key === "/inventory/products" && currentPath.includes("/products")) return ["/inventory/products"];
+
+    //             if (key === "/sales/leads" && currentPath.includes("/leads")) return ["/sales/leads"];
+    //             if (key === "/sales/contacts" && currentPath.includes("/contacts")) return ["/sales/contacts"];
+    //             if (key === "/sales/opportunities" && currentPath.includes("/opportunities")) return ["/sales/opportunities"];
+
+    //             if (key === "/marketing/email-templates" && currentPath.includes("/email-templates")) return ["/marketing/email-templates"];
+    //             if (key === "/marketing/campaigns" && currentPath.includes("/campaigns")) return ["/marketing/campaigns"];
+    //         }
+    //     }
+
+    //     return [location.pathname];
+    // };
 
     const getSelectedKeys = () => {
-        const currentPort = window.location.port;
-        const currentPath = window.location.pathname;
+        const currentPath = location.pathname;
 
-        for (const [key, config] of Object.entries(NAVIGATION_CONFIG)) {
-            if (config.port.toString() === currentPort) {
-                if (key === "/dashboard" && currentPath.includes("dashboard")) return ["/dashboard"];
-                if (key === "/users" && currentPath === "/users") return ["/users"];
-                if (key === "/users/role" && currentPath.includes("/role")) return ["/users/role"];
-                if (key === "/users/permission" && currentPath.includes("/permission")) return ["/users/permission"];
-                if (key === "/tickets" && currentPath.includes("tickets")) return ["/tickets"];
+        if (currentPath.startsWith("/users/role")) return ["/users/role"];
+        if (currentPath.startsWith("/users/permission")) return ["/users/permission"];
+        if (currentPath.startsWith("/users")) return ["/users"];
 
+        if (currentPath.startsWith("/sales/leads")) return ["/sales/leads"];
+        if (currentPath.startsWith("/sales/contacts")) return ["/sales/contacts"];
+        if (currentPath.startsWith("/sales/opportunities")) return ["/sales/opportunities"];
 
-                if (key === "/inventory/categories" && currentPath.includes("/categories")) return ["/inventory/categories"];
-                if (key === "/inventory/products" && currentPath.includes("/products")) return ["/inventory/products"];
+        if (currentPath.startsWith("/inventory/products")) return ["/inventory/products"];
+        if (currentPath.startsWith("/inventory/categories")) return ["/inventory/categories"];
 
-                if (key === "/sales/leads" && currentPath.includes("/leads")) return ["/sales/leads"];
-                if (key === "/sales/contacts" && currentPath.includes("/contacts")) return ["/sales/contacts"];
-                if (key === "/sales/opportunities" && currentPath.includes("/opportunities")) return ["/sales/opportunities"];
+        if (currentPath.startsWith("/marketing/email-templates")) return ["/marketing/email-templates"];
+        if (currentPath.startsWith("/marketing/campaigns")) return ["/marketing/campaigns"];
 
-                if (key === "/marketing/email-templates" && currentPath.includes("/email-templates")) return ["/marketing/email-templates"];
-                if (key === "/marketing/campaigns" && currentPath.includes("/campaigns")) return ["/marketing/campaigns"];
-            }
-        }
+        if (currentPath.startsWith("/tickets")) return ["/tickets"];
+        if (currentPath.startsWith("/dashboard")) return ["/dashboard"];
 
-        return [location.pathname];
+        return [currentPath]; // fallback
     };
+
 
     useEffect(() => {
         const currentPath = window.location.pathname;
@@ -650,5 +714,4 @@ const AdminLayout = ({ children }) => {
 };
 
 export default AdminLayout;
-
 
