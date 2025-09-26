@@ -82,66 +82,104 @@ const ThemeProvider = ({ children }) => {
     );
 };
 
+// const NAVIGATION_CONFIG = {
+//     '/dashboard': {
+//         url: 'https://dashboard.tclaccord.com/dashboard',
+//         port: 3002,
+//         basename: 'dashboard'
+//     },
+//     '/users': {
+//         url: 'https://members.tclaccord.com/users',
+//         port: 3005,
+//         basename: 'users'
+//     },
+//     '/users/role': {
+//         url: 'https://members.tclaccord.com/role',
+//         port: 3005,
+//         basename: 'users'
+//     },
+//     '/users/permission': {
+//         url: 'https://members.tclaccord.com/permission',
+//         port: 3005,
+//         basename: 'users'
+//     },
+//     '/sales/leads': {
+//         url: 'https://voucher.tclaccord.com/sales/leads',
+//         port: 3004,
+//         basename: 'sales'
+//     },
+//     '/sales/contacts': {
+//         url: 'https://voucher.tclaccord.com/sales/contacts',
+//         port: 3004,
+//         basename: 'sales'
+//     },
+//     '/sales/opportunities': {
+//         url: 'https://voucher.tclaccord.com/sales/opportunities',
+//         port: 3004,
+//         basename: 'sales'
+//     },
+//     '/inventory/products': {
+//         url: 'https://asset.tclaccord.com/inventory/products',
+//         port: 3003,
+//         basename: 'inventory'
+//     },
+//     '/inventory/categories': {
+//         url: 'https://asset.tclaccord.com/inventory/categories',
+//         port: 3003,
+//         basename: 'inventory'
+//     },
+//     '/tickets': {
+//         url: 'https://token.tclaccord.com/tickets',
+//         port: 3006,
+//         basename: 'tickets'
+//     },
+//     '/marketing/email-templates': {
+//         url: 'https://strategysphere.tclaccord.com/marketing/email-templates',
+//         port: 3007,
+//         basename: 'marketing'
+//     },
+//     '/marketing/campaigns': {
+//         url: 'https://strategysphere.tclaccord.com/marketing/campaigns',
+//         port: 3007,
+//         basename: 'marketing'
+//     }
+// };
 const NAVIGATION_CONFIG = {
     '/dashboard': {
-        url: 'https://dashboard.tclaccord.com/dashboard',
-        port: 3002,
-        basename: 'dashboard'
+        url: 'https://dashboard.tclaccord.com/dashboard'
     },
     '/users': {
-        url: 'https://members.tclaccord.com/users',
-        port: 3005,
-        basename: 'users'
+        url: 'https://members.tclaccord.com/users'
     },
     '/users/role': {
-        url: 'https://members.tclaccord.com/role',
-        port: 3005,
-        basename: 'users'
+        url: 'https://members.tclaccord.com/role'
     },
     '/users/permission': {
-        url: 'https://members.tclaccord.com/permission',
-        port: 3005,
-        basename: 'users'
+        url: 'https://members.tclaccord.com/permission'
     },
     '/sales/leads': {
-        url: 'https://voucher.tclaccord.com/sales/leads',
-        port: 3004,
-        basename: 'sales'
+        url: 'https://voucher.tclaccord.com/sales/leads'
     },
     '/sales/contacts': {
-        url: 'https://voucher.tclaccord.com/sales/contacts',
-        port: 3004,
-        basename: 'sales'
+        url: 'https://voucher.tclaccord.com/sales/contacts'
     },
     '/sales/opportunities': {
-        url: 'https://voucher.tclaccord.com/sales/opportunities',
-        port: 3004,
-        basename: 'sales'
+        url: 'https://voucher.tclaccord.com/sales/opportunities'
     },
     '/inventory/products': {
-        url: 'https://asset.tclaccord.com/inventory/products',
-        port: 3003,
-        basename: 'inventory'
+        url: 'https://asset.tclaccord.com/inventory/products'
     },
     '/inventory/categories': {
-        url: 'https://asset.tclaccord.com/inventory/categories',
-        port: 3003,
-        basename: 'inventory'
+        url: 'https://asset.tclaccord.com/inventory/categories'
     },
     '/tickets': {
-        url: 'https://token.tclaccord.com/tickets',
-        port: 3006,
-        basename: 'tickets'
+        url: 'https://token.tclaccord.com/tickets'
     },
     '/marketing/email-templates': {
-        url: 'https://strategysphere.tclaccord.com/marketing/email-templates',
-        port: 3007,
-        basename: 'marketing'
+        url: 'https://strategysphere.tclaccord.com/marketing/email-templates'
     },
     '/marketing/campaigns': {
-        url: 'https://strategysphere.tclaccord.com/marketing/campaigns',
-        port: 3007,
-        basename: 'marketing'
+        url: 'https://strategysphere.tclaccord.com/marketing/campaigns'
     }
 };
 
@@ -283,6 +321,39 @@ const AdminLayoutContent = ({ children }) => {
     //         setDrawerVisible(false);
     //     }
     // };
+    // const handleMenuClick = ({ key }) => {
+    //     const config = NAVIGATION_CONFIG[key];
+
+    //     if (config) {
+    //         const token = localStorage.getItem('token');
+    //         const tenantId = localStorage.getItem('tenantId');
+    //         const userId = localStorage.getItem('userId');
+    //         const name = localStorage.getItem('name');
+    //         const url = token
+    //             ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
+    //             : config.url;
+    //         window.location.href = url;
+    //     } else {
+    //         navigate(key);
+    //     }
+
+    //     if (key.startsWith('/users')) {
+    //         setOpenKeys(['/users']);
+    //     } else if (key.startsWith('/sales')) {
+    //         setOpenKeys(['/sales']);
+    //     } else if (key.startsWith('/inventory')) {
+    //         setOpenKeys(['/inventory']);
+    //     } else if (key.startsWith('/marketing')) {
+    //         setOpenKeys(['/marketing']);
+    //     } else {
+    //         setOpenKeys([]);
+    //     }
+
+    //     if (isMobile) {
+    //         setDrawerVisible(false);
+    //     }
+    // };
+
     const handleMenuClick = ({ key }) => {
         const config = NAVIGATION_CONFIG[key];
 
@@ -291,14 +362,19 @@ const AdminLayoutContent = ({ children }) => {
             const tenantId = localStorage.getItem('tenantId');
             const userId = localStorage.getItem('userId');
             const name = localStorage.getItem('name');
+
             const url = token
                 ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
                 : config.url;
+
+            // ✅ Always go to the full external URL
             window.location.href = url;
         } else {
+            // Fallback: internal route
             navigate(key);
         }
 
+        // Expand the correct parent menu
         if (key.startsWith('/users')) {
             setOpenKeys(['/users']);
         } else if (key.startsWith('/sales')) {
@@ -315,6 +391,7 @@ const AdminLayoutContent = ({ children }) => {
             setDrawerVisible(false);
         }
     };
+
 
     const getSelectedKeys = () => {
         const currentPort = window.location.port;
