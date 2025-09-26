@@ -298,8 +298,7 @@ const AdminLayoutContent = ({ children }) => {
                     : config.url;
                 window.location.href = url;
             } else {
-                const routePath = key.replace(`/${config.basename}`, '') || '/';
-                navigate(routePath);
+                navigate(key);
             }
         } else {
             navigate(key);
