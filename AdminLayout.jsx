@@ -285,21 +285,16 @@ const AdminLayoutContent = ({ children }) => {
     // };
     const handleMenuClick = ({ key }) => {
         const config = NAVIGATION_CONFIG[key];
-        const currentPort = window.location.port;
 
         if (config) {
-            if (config.port.toString() !== currentPort) {
-                const token = localStorage.getItem('token');
-                const tenantId = localStorage.getItem('tenantId');
-                const userId = localStorage.getItem('userId');
-                const name = localStorage.getItem('name');
-                const url = token
-                    ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
-                    : config.url;
-                window.location.href = url;
-            } else {
-                navigate(key);
-            }
+            const token = localStorage.getItem('token');
+            const tenantId = localStorage.getItem('tenantId');
+            const userId = localStorage.getItem('userId');
+            const name = localStorage.getItem('name');
+            const url = token
+                ? `${config.url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
+                : config.url;
+            window.location.href = url;
         } else {
             navigate(key);
         }
@@ -405,7 +400,7 @@ const AdminLayoutContent = ({ children }) => {
             console.error('Logout error:', error);
         } finally {
             localStorage.clear();
-            window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3001/auth';
+            window.location.href = import.meta.env.VITE_LOGIN_URL || 'https://signin.tclcontactplus.com/auth';
         }
     };
 
