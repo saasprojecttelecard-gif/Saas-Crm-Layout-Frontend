@@ -89,62 +89,57 @@ const NAVIGATION_CONFIG = {
         basename: 'dashboard'
     },
     '/users': {
-        url: 'https://users.tclaccord.com/users',
+        url: 'https://members.tclaccord.com/users',
         port: 3005,
         basename: 'users'
     },
     '/users/role': {
-        url: 'http://localhost:3005/users/role',
+        url: 'https://members.tclaccord.com/role',
         port: 3005,
         basename: 'users'
     },
     '/users/permission': {
-        url: 'http://localhost:3005/users/permission',
+        url: 'https://members.tclaccord.com/permission',
         port: 3005,
         basename: 'users'
     },
     '/sales/leads': {
-        url: 'http://localhost:3004/sales/leads',
+        url: 'https://voucher.tclaccord.com/sales/leads',
         port: 3004,
         basename: 'sales'
     },
     '/sales/contacts': {
-        url: 'http://localhost:3004/sales/contacts',
+        url: 'https://voucher.tclaccord.com/sales/contacts',
         port: 3004,
         basename: 'sales'
     },
     '/sales/opportunities': {
-        url: 'http://localhost:3004/sales/opportunities',
+        url: 'https://voucher.tclaccord.com/sales/opportunities',
         port: 3004,
         basename: 'sales'
     },
     '/inventory/products': {
-        url: 'http://localhost:3003/inventory/products',
+        url: 'https://asset.tclaccord.com/inventory/products',
         port: 3003,
         basename: 'inventory'
     },
     '/inventory/categories': {
-        url: 'http://localhost:3003/inventory/categories',
+        url: 'https://asset.tclaccord.com/inventory/categories',
         port: 3003,
         basename: 'inventory'
     },
     '/tickets': {
-        url: 'http://localhost:3006/tickets',
+        url: 'https://token.tclaccord.com/tickets',
         port: 3006,
         basename: 'tickets'
     },
-    '/products': {
-        url: 'http://localhost:3003/products',
-        port: 3003,
-        basename: 'inventory'
-    },
     '/marketing/email-templates': {
-        url: 'http://localhost:3007/marketing/email-templates',
+        url: 'https://strategysphere.tclaccord.com/marketing/email-templates',
         port: 3007,
         basename: 'marketing'
     },
     '/marketing/campaigns': {
-        url: 'http://localhost:3007/marketing/campaigns',
+        url: 'https://strategysphere.tclaccord.com/marketing/campaigns',
         port: 3007,
         basename: 'marketing'
     }
