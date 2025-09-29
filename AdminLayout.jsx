@@ -80,6 +80,19 @@ const NAVIGATION_CONFIG = {
     '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008, basename: 'tenant' },
 };
 
+// This maps a specific path to its parent key.
+const PARENT_KEYS = {
+    '/users/role': '/users',
+    '/users/permission': '/users',
+    '/sales/leads': '/sales',
+    '/sales/contacts': '/sales',
+    '/sales/opportunities': '/sales',
+    '/inventory/products': '/inventory',
+    '/inventory/categories': '/inventory',
+    '/marketing/email-templates': '/marketing',
+    '/marketing/campaigns': '/marketing',
+};
+
 const AdminLayoutContent = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -88,23 +101,11 @@ const AdminLayoutContent = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const rootSubmenuKeys = ['/users', '/sales', '/inventory', '/marketing'];
-
     const onOpenChange = (keys) => {
-        const latestOpenKey = keys.find((key) => !openKeys.includes(key));
-        if (rootSubmenuKeys.includes(latestOpenKey)) {
-            setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
-        } else {
-            setOpenKeys(keys);
-        }
+        setOpenKeys(keys);
     };
 
     const handleMenuClick = ({ key }) => {
-        if (rootSubmenuKeys.includes(key)) {
-            setOpenKeys([key]);
-            return;
-        }
-
         const config = NAVIGATION_CONFIG[key];
         const isDev = import.meta.env.DEV || false;
 
@@ -113,8 +114,10 @@ const AdminLayoutContent = ({ children }) => {
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
+                // If on the same host, use React Router for a smooth SPA transition.
                 navigate(key);
             } else {
+                // If on a different host, perform a full page redirect.
                 let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
                 const token = localStorage.getItem('token');
                 const tenantId = localStorage.getItem('tenantId');
@@ -127,73 +130,42 @@ const AdminLayoutContent = ({ children }) => {
                 window.location.href = url;
             }
         } else {
+            // Fallback for any keys that aren't in the config.
             navigate(key);
         }
 
         if (isMobile) setDrawerVisible(false);
     };
 
+    // This function now correctly determines the selected key based on the current path.
     const getSelectedKeys = () => {
         const currentPath = location.pathname;
         const currentHost = window.location.hostname;
 
-        // For dashboard
-        if (currentHost.includes('dashboard') && currentPath === '/') {
-            return ['/dashboard'];
-        }
+        // Special handling for root paths on different hosts.
+        if (currentHost.includes('dashboard') && currentPath === '/') return ['/dashboard'];
+        if (currentHost.includes('members') && currentPath === '/') return ['/users'];
+        if (currentHost.includes('token') && currentPath === '/') return ['/tickets'];
+        if (currentHost.includes('occupant') && currentPath === '/') return ['/tenants'];
 
-        // For users management
-        if (currentHost.includes('members')) {
-            if (currentPath === '/') return ['/users'];
-            if (currentPath === '/role') return ['/users/role'];
-            if (currentPath === '/permission') return ['/users/permission'];
-        }
-
-        // For sales
-        if (currentHost.includes('transaction')) {
-            if (currentPath === '/leads') return ['/sales/leads'];
-            if (currentPath === '/contacts') return ['/sales/contacts'];
-            if (currentPath === '/opportunities') return ['/sales/opportunities'];
-        }
-
-        // For inventory
-        if (currentHost.includes('asset')) {
-            if (currentPath === '/products') return ['/inventory/products'];
-            if (currentPath === '/categories') return ['/inventory/categories'];
-        }
-
-        // For marketing
-        if (currentHost.includes('strategysphere')) {
-            if (currentPath === '/email-templates') return ['/marketing/email-templates'];
-            if (currentPath === '/campaigns') return ['/marketing/campaigns'];
-        }
-
-        // For tickets
-        if (currentHost.includes('token') && currentPath === '/') {
-            return ['/tickets'];
-        }
-
-        // For tenants
-        if (currentHost.includes('occupant') && currentPath === '/') {
-            return ['/tenants'];
-        }
-
-        // Default fallback
+        // Fallback to the current path itself.
         return [currentPath];
     };
 
+    // This function now correctly determines the open keys based on the selected key.
     const getOpenKeys = () => {
-        const currentHost = window.location.hostname;
+        const selectedKey = getSelectedKeys()[0];
+        const parentKey = PARENT_KEYS[selectedKey];
 
-        if (currentHost.includes('members')) return ['/users'];
-        if (currentHost.includes('transaction')) return ['/sales'];
-        if (currentHost.includes('asset')) return ['/inventory'];
-        if (currentHost.includes('strategysphere')) return ['/marketing'];
+        if (parentKey) {
+            return [parentKey];
+        }
 
         return [];
     };
 
     useEffect(() => {
+        // This useEffect hook now automatically sets the open keys whenever the location changes.
         setOpenKeys(getOpenKeys());
     }, [location.pathname]);
 
