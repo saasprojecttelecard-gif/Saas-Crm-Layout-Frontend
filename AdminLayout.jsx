@@ -810,6 +810,16 @@ const AdminLayoutContent = ({ children }) => {
 
     const rootSubmenuKeys = ['/users', '/sales', '/inventory', '/marketing'];
 
+    /* ---------- Handle submenu open/close ---------- */
+    const onOpenChange = (keys) => {
+        const latestOpenKey = keys.find((key) => !openKeys.includes(key));
+        if (rootSubmenuKeys.includes(latestOpenKey)) {
+            setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+        } else {
+            setOpenKeys(keys);
+        }
+    };
+
     /* ---------- Handle menu click ---------- */
     const handleMenuClick = ({ key }) => {
         const config = NAVIGATION_CONFIG[key];
@@ -820,10 +830,8 @@ const AdminLayoutContent = ({ children }) => {
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
-                // SAME app → just navigate without refresh
-                const base = `/${config.basename}`;
-                const routePath = key.startsWith(base) ? key.replace(base, '') || '/' : key;
-                navigate(routePath);
+                // SAME app → just navigate within React Router
+                navigate(key);
             } else {
                 // DIFFERENT app → full reload with auth
                 let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
@@ -852,17 +860,28 @@ const AdminLayoutContent = ({ children }) => {
 
     /* ---------- Active menu highlighting ---------- */
     const getSelectedKeys = () => {
-        const currentPort = window.location.port;
-        const currentPath = window.location.pathname;
+        const currentPath = location.pathname;
 
-        for (const [key, config] of Object.entries(NAVIGATION_CONFIG)) {
-            if (config.port.toString() === currentPort) {
-                if (currentPath.includes(key.replace(`/${config.basename}`, ''))) {
-                    return [key];
-                }
-            }
-        }
-        return [location.pathname];
+        // Check for exact matches first (most specific)
+        if (currentPath === '/users/permission') return ['/users/permission'];
+        if (currentPath === '/users/role') return ['/users/role'];
+        if (currentPath === '/users') return ['/users'];
+
+        if (currentPath === '/sales/opportunities') return ['/sales/opportunities'];
+        if (currentPath === '/sales/contacts') return ['/sales/contacts'];
+        if (currentPath === '/sales/leads') return ['/sales/leads'];
+
+        if (currentPath === '/inventory/categories') return ['/inventory/categories'];
+        if (currentPath === '/inventory/products') return ['/inventory/products'];
+
+        if (currentPath === '/marketing/campaigns') return ['/marketing/campaigns'];
+        if (currentPath === '/marketing/email-templates') return ['/marketing/email-templates'];
+
+        if (currentPath === '/tickets') return ['/tickets'];
+        if (currentPath === '/dashboard') return ['/dashboard'];
+
+        // Fallback to current path
+        return [currentPath];
     };
 
     /* ---------- Submenu open state ---------- */
@@ -891,7 +910,7 @@ const AdminLayoutContent = ({ children }) => {
             console.error('Logout error:', e);
         } finally {
             localStorage.clear();
-            window.location.href = import.meta.env.VITE_LOGIN_URL || 'https://signin.tclcontactplus.com/auth';
+            window.location.href = import.meta.env.VITE_LOGIN_URL || 'https://signin.tclaccord.com/auth';
         }
     };
 
@@ -947,7 +966,7 @@ const AdminLayoutContent = ({ children }) => {
         <Layout className="admin-layout-main">
             {/* HEADER */}
             <Header className="admin-header admin-header-light">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <Button
                             type="text"
@@ -959,12 +978,14 @@ const AdminLayoutContent = ({ children }) => {
                         <Text strong className="text-primary" style={{ fontSize: 20 }}>Accord CRM</Text>
                     </div>
 
-                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
-                        <Button type="text" className="admin-button-user">
-                            <div className="admin-user-avatar">{(localStorage.getItem('name') || 'D')[0].toUpperCase()}</div>
-                            <span style={{ fontWeight: 500 }}>{localStorage.getItem('name') || 'Demo'}</span>
-                        </Button>
-                    </Dropdown>
+                    <div style={{ marginLeft: 'auto' }}>
+                        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
+                            <Button type="text" className="admin-button-user">
+                                <div className="admin-user-avatar">{(localStorage.getItem('name') || 'D')[0].toUpperCase()}</div>
+                                <span style={{ fontWeight: 500 }}>{localStorage.getItem('name') || 'Demo'}</span>
+                            </Button>
+                        </Dropdown>
+                    </div>
                 </div>
             </Header>
 
@@ -982,7 +1003,7 @@ const AdminLayoutContent = ({ children }) => {
                             theme="light"
                             selectedKeys={getSelectedKeys()}
                             openKeys={openKeys}
-                            onOpenChange={setOpenKeys}
+                            onOpenChange={onOpenChange}
                             mode="inline"
                             items={menuItems}
                             onClick={handleMenuClick}
@@ -1016,7 +1037,7 @@ const AdminLayoutContent = ({ children }) => {
                         theme="light"
                         selectedKeys={getSelectedKeys()}
                         openKeys={openKeys}
-                        onOpenChange={setOpenKeys}
+                        onOpenChange={onOpenChange}
                         mode="inline"
                         items={menuItems}
                         onClick={handleMenuClick}
