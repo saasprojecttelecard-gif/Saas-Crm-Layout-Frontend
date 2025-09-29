@@ -30,7 +30,6 @@ import apiClient from './apiClient';
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
 
-/* ---------------- THEME CONTEXT ---------------- */
 const ThemeContext = createContext();
 
 export const useTheme = () => {
@@ -65,7 +64,6 @@ const ThemeProvider = ({ children }) => {
     );
 };
 
-/* ---------------- NAVIGATION CONFIG ---------------- */
 const NAVIGATION_CONFIG = {
     '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002, basename: 'dashboard' },
     '/users': { url: 'https://members.tclaccord.com/users', port: 3005, basename: 'users' },
@@ -82,7 +80,6 @@ const NAVIGATION_CONFIG = {
     '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008, basename: 'tenant' },
 };
 
-/* ---------------- ADMIN CONTENT ---------------- */
 const AdminLayoutContent = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -93,7 +90,6 @@ const AdminLayoutContent = ({ children }) => {
 
     const rootSubmenuKeys = ['/users', '/sales', '/inventory', '/marketing'];
 
-    /* ---------- Handle submenu open/close ---------- */
     const onOpenChange = (keys) => {
         const latestOpenKey = keys.find((key) => !openKeys.includes(key));
         if (rootSubmenuKeys.includes(latestOpenKey)) {
@@ -103,9 +99,7 @@ const AdminLayoutContent = ({ children }) => {
         }
     };
 
-    /* ---------- Handle menu click ---------- */
     const handleMenuClick = ({ key }) => {
-        // Prevent parent-only keys from navigating (avoid /users/users/role issue)
         if (rootSubmenuKeys.includes(key)) {
             setOpenKeys([key]);
             return;
@@ -119,16 +113,17 @@ const AdminLayoutContent = ({ children }) => {
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
-                navigate(key); // same app
+                navigate(key);
             } else {
                 let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
                 const token = localStorage.getItem('token');
                 const tenantId = localStorage.getItem('tenantId');
                 const userId = localStorage.getItem('userId');
                 const name = localStorage.getItem('name');
-                url = token
-                    ? `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`
-                    : url;
+
+                if (token) {
+                    url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`;
+                }
                 window.location.href = url;
             }
         } else {
@@ -138,23 +133,24 @@ const AdminLayoutContent = ({ children }) => {
         if (isMobile) setDrawerVisible(false);
     };
 
-    /* ---------- Active menu highlighting ---------- */
     const getSelectedKeys = () => {
         const currentPath = location.pathname;
         return [currentPath];
     };
 
-    /* ---------- Submenu open state ---------- */
+    const getOpenKeys = () => {
+        const currentPath = location.pathname;
+        if (currentPath.includes('/users')) return ['/users'];
+        if (currentPath.includes('/sales')) return ['/sales'];
+        if (currentPath.includes('/inventory')) return ['/inventory'];
+        if (currentPath.includes('/marketing')) return ['/marketing'];
+        return [];
+    };
+
     useEffect(() => {
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/users')) setOpenKeys(['/users']);
-        else if (currentPath.includes('/sales')) setOpenKeys(['/sales']);
-        else if (currentPath.includes('/inventory')) setOpenKeys(['/inventory']);
-        else if (currentPath.includes('/marketing')) setOpenKeys(['/marketing']);
-        else setOpenKeys([]);
+        setOpenKeys(getOpenKeys());
     }, [location.pathname]);
 
-    /* ---------- Mobile resize ---------- */
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 992);
         handleResize();
@@ -162,7 +158,6 @@ const AdminLayoutContent = ({ children }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    /* ---------- Logout ---------- */
     const handleLogout = async () => {
         try {
             await apiClient.post('/auth/logout');
@@ -178,7 +173,6 @@ const AdminLayoutContent = ({ children }) => {
         { key: 'logout', label: 'Logout', icon: <LogOut size={16} />, onClick: handleLogout },
     ];
 
-    /* ---------- Menu Items ---------- */
     const menuItems = [
         { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
         {
@@ -225,7 +219,6 @@ const AdminLayoutContent = ({ children }) => {
 
     return (
         <Layout className="admin-layout-main">
-            {/* HEADER */}
             <Header className="admin-header admin-header-light">
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -250,7 +243,6 @@ const AdminLayoutContent = ({ children }) => {
                 </div>
             </Header>
 
-            {/* MAIN CONTENT */}
             <Layout className="admin-layout-content site-layout">
                 {!isMobile && (
                     <Sider
@@ -282,13 +274,14 @@ const AdminLayoutContent = ({ children }) => {
                 </Layout>
             </Layout>
 
-            {/* MOBILE DRAWER */}
             {isMobile && (
                 <Drawer
-                    title={<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <div className="admin-drawer-logo">A</div>
-                        <Text strong>Accord CRM</Text>
-                    </div>}
+                    title={
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <div className="admin-drawer-logo">A</div>
+                            <Text strong>Accord CRM</Text>
+                        </div>
+                    }
                     placement="left"
                     onClose={() => setDrawerVisible(false)}
                     open={drawerVisible}
@@ -309,7 +302,6 @@ const AdminLayoutContent = ({ children }) => {
     );
 };
 
-/* ---------------- ROOT EXPORT ---------------- */
 const AdminLayout = ({ children }) => (
     <ThemeProvider>
         <AdminLayoutContent>{children}</AdminLayoutContent>
