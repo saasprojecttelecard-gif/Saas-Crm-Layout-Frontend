@@ -135,15 +135,61 @@ const AdminLayoutContent = ({ children }) => {
 
     const getSelectedKeys = () => {
         const currentPath = location.pathname;
+        const currentHost = window.location.hostname;
+
+        // For dashboard
+        if (currentHost.includes('dashboard') && currentPath === '/') {
+            return ['/dashboard'];
+        }
+
+        // For users management
+        if (currentHost.includes('members')) {
+            if (currentPath === '/') return ['/users'];
+            if (currentPath === '/role') return ['/users/role'];
+            if (currentPath === '/permission') return ['/users/permission'];
+        }
+
+        // For sales
+        if (currentHost.includes('transaction')) {
+            if (currentPath === '/leads') return ['/sales/leads'];
+            if (currentPath === '/contacts') return ['/sales/contacts'];
+            if (currentPath === '/opportunities') return ['/sales/opportunities'];
+        }
+
+        // For inventory
+        if (currentHost.includes('asset')) {
+            if (currentPath === '/products') return ['/inventory/products'];
+            if (currentPath === '/categories') return ['/inventory/categories'];
+        }
+
+        // For marketing
+        if (currentHost.includes('strategysphere')) {
+            if (currentPath === '/email-templates') return ['/marketing/email-templates'];
+            if (currentPath === '/campaigns') return ['/marketing/campaigns'];
+        }
+
+        // For tickets
+        if (currentHost.includes('token') && currentPath === '/') {
+            return ['/tickets'];
+        }
+
+        // For tenants
+        if (currentHost.includes('occupant') && currentPath === '/') {
+            return ['/tenants'];
+        }
+
+        // Default fallback
         return [currentPath];
     };
 
     const getOpenKeys = () => {
-        const currentPath = location.pathname;
-        if (currentPath.includes('/users')) return ['/users'];
-        if (currentPath.includes('/sales')) return ['/sales'];
-        if (currentPath.includes('/inventory')) return ['/inventory'];
-        if (currentPath.includes('/marketing')) return ['/marketing'];
+        const currentHost = window.location.hostname;
+
+        if (currentHost.includes('members')) return ['/users'];
+        if (currentHost.includes('transaction')) return ['/sales'];
+        if (currentHost.includes('asset')) return ['/inventory'];
+        if (currentHost.includes('strategysphere')) return ['/marketing'];
+
         return [];
     };
 
