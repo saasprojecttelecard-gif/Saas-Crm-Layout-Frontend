@@ -25,7 +25,7 @@ import {
     Building
 } from 'lucide-react';
 import './index.css';
-import apiClient from './apiClient';
+import apiClient from './apiClient'; // Assuming this is defined and works
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -153,13 +153,17 @@ const AdminLayoutContent = ({ children }) => {
         if (currentPath === '/marketing/email-templates') return ['/marketing/email-templates'];
         if (currentPath === '/marketing/campaigns') return ['/marketing/campaigns'];
 
-        // 2. Handle main menu items, including root paths on micro-frontends
+        // 2. Handle main menu items and root paths on micro-frontends
         if (currentHost.includes('dashboard') || currentPath === '/dashboard') return ['/dashboard'];
         if (currentHost.includes('token') || currentPath === '/tickets') return ['/tickets'];
         if (currentHost.includes('occupant') || currentPath === '/tenants') return ['/tenants'];
 
-        // Special case: If on the users host, and path starts with /users (e.g., /users or /users/), select /users
-        if (currentHost.includes('members') && currentPath.startsWith('/users')) return ['/users'];
+        // ✨ CRITICAL FIX: Handle the root of the 'users' micro-frontend (where location.pathname is '/')
+        if (currentHost.includes('members')) {
+            if (currentPath === '/') return ['/users'];
+            // For other paths starting with /users (e.g., /users/add, /users/edit/:id), select the parent item.
+            if (currentPath.startsWith('/users')) return ['/users'];
+        }
         if (currentPath === '/users') return ['/users']; // Ensures local SPA routing also selects it
 
         // 3. Default fallback
