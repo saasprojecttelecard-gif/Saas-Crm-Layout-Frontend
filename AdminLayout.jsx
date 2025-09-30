@@ -218,7 +218,7 @@ const AdminLayoutContent = ({ children }) => {
             icon: <UsersRound size={16} />,
             label: 'Users Management',
             children: [
-                { key: '/', label: 'Users', icon: <Users size={16} /> }, // Child item that navigates to the main users page
+                { key: '/users', label: 'Users', icon: <Users size={16} /> }, // Child item that navigates to the main users page
                 { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
                 { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
             ],
