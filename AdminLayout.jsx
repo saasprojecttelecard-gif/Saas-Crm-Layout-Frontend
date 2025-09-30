@@ -80,7 +80,7 @@ const NAVIGATION_CONFIG = {
     '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008, basename: 'tenant' },
 };
 
-// This maps a specific path to its parent key.
+// This maps a specific child path to its parent menu key for automatic expansion.
 const PARENT_KEYS = {
     '/users/role': '/users',
     '/users/permission': '/users',
@@ -114,10 +114,10 @@ const AdminLayoutContent = ({ children }) => {
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
-                // If on the same host, use React Router for a smooth SPA transition.
+                // Same host: Use React Router for fast, client-side navigation.
                 navigate(key);
             } else {
-                // If on a different host, perform a full page redirect.
+                // Different host (Micro-frontend): Perform a full page redirect.
                 let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
                 const token = localStorage.getItem('token');
                 const tenantId = localStorage.getItem('tenantId');
@@ -125,49 +125,68 @@ const AdminLayoutContent = ({ children }) => {
                 const name = localStorage.getItem('name');
 
                 if (token) {
+                    // Append authentication details for the redirect
                     url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`;
                 }
                 window.location.href = url;
             }
         } else {
-            // Fallback for any keys that aren't in the config.
+            // Fallback for any keys that aren't in the config (e.g., custom local routes).
             navigate(key);
         }
 
         if (isMobile) setDrawerVisible(false);
     };
 
-    // This function now correctly determines the selected key based on the current path.
     const getSelectedKeys = () => {
         const currentPath = location.pathname;
         const currentHost = window.location.hostname;
 
-        // Special handling for root paths on different hosts.
-        if (currentHost.includes('dashboard') && currentPath === '/') return ['/dashboard'];
-        if (currentHost.includes('members') && currentPath === '/') return ['/users'];
-        if (currentHost.includes('token') && currentPath === '/') return ['/tickets'];
-        if (currentHost.includes('occupant') && currentPath === '/') return ['/tenants'];
+        // 1. Check for explicit path matches first (child pages)
+        if (currentPath === '/users/role') return ['/users/role'];
+        if (currentPath === '/users/permission') return ['/users/permission'];
+        if (currentPath === '/sales/leads') return ['/sales/leads'];
+        if (currentPath === '/sales/contacts') return ['/sales/contacts'];
+        if (currentPath === '/sales/opportunities') return ['/sales/opportunities'];
+        if (currentPath === '/inventory/products') return ['/inventory/products'];
+        if (currentPath === '/inventory/categories') return ['/inventory/categories'];
+        if (currentPath === '/marketing/email-templates') return ['/marketing/email-templates'];
+        if (currentPath === '/marketing/campaigns') return ['/marketing/campaigns'];
 
-        // Fallback to the current path itself.
+        // 2. Handle main menu items, including root paths on micro-frontends
+        if (currentHost.includes('dashboard') || currentPath === '/dashboard') return ['/dashboard'];
+        if (currentHost.includes('token') || currentPath === '/tickets') return ['/tickets'];
+        if (currentHost.includes('occupant') || currentPath === '/tenants') return ['/tenants'];
+
+        // Special case: If on the users host, and path starts with /users (e.g., /users or /users/), select /users
+        if (currentHost.includes('members') && currentPath.startsWith('/users')) return ['/users'];
+        if (currentPath === '/users') return ['/users']; // Ensures local SPA routing also selects it
+
+        // 3. Default fallback
         return [currentPath];
     };
 
-    // This function now correctly determines the open keys based on the selected key.
     const getOpenKeys = () => {
         const selectedKey = getSelectedKeys()[0];
         const parentKey = PARENT_KEYS[selectedKey];
 
+        // Check if the selected key is a child of a collapsible menu
         if (parentKey) {
             return [parentKey];
+        }
+
+        // If the selected key is a parent itself (like /users), ensure it is open
+        if (['/users', '/sales', '/inventory', '/marketing'].includes(selectedKey)) {
+            return [selectedKey];
         }
 
         return [];
     };
 
     useEffect(() => {
-        // This useEffect hook now automatically sets the open keys whenever the location changes.
+        // Automatically set the open keys based on the current location
         setOpenKeys(getOpenKeys());
-    }, [location.pathname]);
+    }, [location.pathname, location.hostname]); // Include hostname for micro-frontend awareness
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 992);
@@ -183,6 +202,7 @@ const AdminLayoutContent = ({ children }) => {
             console.error('Logout error:', e);
         } finally {
             localStorage.clear();
+            // Use the absolute URL for signin, which should always be a full redirect
             window.location.href = import.meta.env.VITE_LOGIN_URL || 'https://signin.tclaccord.com';
         }
     };
@@ -194,17 +214,17 @@ const AdminLayoutContent = ({ children }) => {
     const menuItems = [
         { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
         {
-            key: '/users',
+            key: '/users', // Parent key
             icon: <UsersRound size={16} />,
             label: 'Users Management',
             children: [
-                { key: '/users', label: 'Users', icon: <Users size={16} /> },
+                { key: '/users', label: 'Users', icon: <Users size={16} /> }, // Child item that navigates to the main users page
                 { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
                 { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
             ],
         },
         {
-            key: '/sales',
+            key: '/sales', // Parent key
             icon: <Briefcase size={16} />,
             label: 'Sales',
             children: [
@@ -216,7 +236,7 @@ const AdminLayoutContent = ({ children }) => {
         { key: '/tickets', icon: <Ticket size={16} />, label: 'Ticket' },
         { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
         {
-            key: '/inventory',
+            key: '/inventory', // Parent key
             icon: <Boxes size={16} />,
             label: 'Inventory Management',
             children: [
@@ -225,7 +245,7 @@ const AdminLayoutContent = ({ children }) => {
             ],
         },
         {
-            key: '/marketing',
+            key: '/marketing', // Parent key
             icon: <BadgePercent size={16} />,
             label: 'Marketing',
             children: [
