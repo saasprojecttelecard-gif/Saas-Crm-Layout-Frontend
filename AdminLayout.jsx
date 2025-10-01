@@ -115,7 +115,9 @@ const AdminLayoutContent = ({ children }) => {
 
             if (currentHost === configHost) {
                 // Same host: Use React Router for fast, client-side navigation.
-                navigate(key);
+                // navigate(key);
+                navigate(key, { replace: true });
+
             } else {
                 // Different host (Micro-frontend): Perform a full page redirect.
                 let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
