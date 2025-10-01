@@ -26,11 +26,28 @@ import {
 } from 'lucide-react';
 import './index.css';
 import apiClient from './apiClient';
+import { clearAllAuthData, broadcastLogout, setupLogoutListener } from './tokenHandler';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
 
 const ThemeContext = createContext();
+
+const cleanUrlFromTokens = () => {
+    const url = new URL(window.location);
+    const hasTokenParams = url.searchParams.has('token') ||
+        url.searchParams.has('tenantId') ||
+        url.searchParams.has('userId') ||
+        url.searchParams.has('name');
+
+    if (hasTokenParams) {
+        url.searchParams.delete('token');
+        url.searchParams.delete('tenantId');
+        url.searchParams.delete('userId');
+        url.searchParams.delete('name');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+    }
+};
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);
@@ -150,19 +167,38 @@ const AdminLayoutContent = ({ children }) => {
         const currentPath = location.pathname;
         const currentHost = window.location.hostname;
 
-        if (NAVIGATION_CONFIG[currentPath]) return [currentPath];
-
+        // Handle host-based menu selection for different micro-frontends
         if (currentHost.includes('dashboard')) return ['/dashboard'];
         if (currentHost.includes('token')) return ['/tickets'];
         if (currentHost.includes('occupant')) return ['/tenants'];
-        if (currentHost.includes('members')) {
-            if (currentPath === '/') return ['/users/list'];
-            if (currentPath === '/users') return ['/users/list'];
-        }
-        if (currentHost.includes('transaction') && currentPath.startsWith('/sales')) return ['/sales'];
-        if (currentHost.includes('asset') && currentPath.startsWith('/inventory')) return ['/inventory'];
-        if (currentHost.includes('strategysphere') && currentPath.startsWith('/marketing')) return ['/marketing'];
 
+        if (currentHost.includes('members')) {
+            if (currentPath === '/' || currentPath === '/list') return ['/users/list'];
+            if (currentPath === '/role') return ['/users/role'];
+            if (currentPath === '/permission') return ['/users/permission'];
+            return ['/users/list']; // Default for users MFE
+        }
+
+        if (currentHost.includes('transaction')) {
+            if (currentPath === '/leads') return ['/sales/leads'];
+            if (currentPath === '/contacts') return ['/sales/contacts'];
+            if (currentPath === '/opportunities') return ['/sales/opportunities'];
+            return ['/sales/leads']; // Default for sales MFE
+        }
+
+        if (currentHost.includes('asset')) {
+            if (currentPath === '/products') return ['/inventory/products'];
+            if (currentPath === '/categories') return ['/inventory/categories'];
+            return ['/inventory/products']; // Default for inventory MFE
+        }
+
+        if (currentHost.includes('strategysphere')) {
+            if (currentPath === '/email-templates') return ['/marketing/email-templates'];
+            if (currentPath === '/campaigns') return ['/marketing/campaigns'];
+            return ['/marketing/email-templates']; // Default for marketing MFE
+        }
+
+        // Fallback for localhost development or unknown hosts
         return [currentPath];
     };
 
@@ -187,13 +223,122 @@ const AdminLayoutContent = ({ children }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        // Clean URL from tokens on component mount and route changes
+        cleanUrlFromTokens();
+    }, [location.pathname, location.search]);
+
+    useEffect(() => {
+        // Listen for cross-origin messages to clear localStorage
+        const handleMessage = (event) => {
+            if (event.data && event.data.action === 'CLEAR_AUTH_DATA') {
+                clearAllAuthData();
+                // Send confirmation back
+                event.source.postMessage({ action: 'AUTH_DATA_CLEARED' }, event.origin);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
+    useEffect(() => {
+        // Handle logout parameter in URL (when loaded via iframe for clearing)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('logout') === 'true') {
+            clearAllAuthData();
+            // Clean the logout parameter from URL
+            const url = new URL(window.location);
+            url.searchParams.delete('logout');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
+    }, []);
+
+    useEffect(() => {
+        // Setup logout listener for cross-tab/cross-MFE logout
+        const cleanup = setupLogoutListener(() => {
+            clearAllAuthData();
+            cleanUrlFromTokens();
+            window.location.href = 'https://signin.tclaccord.com';
+        });
+
+        return cleanup;
+    }, []);
+
+    const clearAllMicroFrontendStorage = async () => {
+        const microFrontends = [
+            { name: 'dashboard', url: 'https://dashboard.tclaccord.com', port: 3002 },
+            { name: 'users', url: 'https://members.tclaccord.com', port: 3005 },
+            { name: 'sales', url: 'https://transaction.tclaccord.com', port: 3004 },
+            { name: 'inventory', url: 'https://asset.tclaccord.com', port: 3003 },
+            { name: 'tickets', url: 'https://token.tclaccord.com', port: 3006 },
+            { name: 'marketing', url: 'https://strategysphere.tclaccord.com', port: 3007 },
+            { name: 'tenants', url: 'https://occupant.tclaccord.com', port: 3008 },
+        ];
+
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+        // Create hidden iframes to clear localStorage from each micro-frontend
+        const clearPromises = microFrontends.map(mfe => {
+            return new Promise((resolve) => {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+
+                const targetUrl = isDev ? `http://localhost:${mfe.port}` : mfe.url;
+
+                iframe.onload = () => {
+                    try {
+                        // Send message to iframe to clear its localStorage
+                        iframe.contentWindow.postMessage({ action: 'CLEAR_AUTH_DATA' }, '*');
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                            resolve();
+                        }, 500);
+                    } catch (error) {
+                        console.warn(`Could not clear storage for ${mfe.name}:`, error);
+                        document.body.removeChild(iframe);
+                        resolve();
+                    }
+                };
+
+                iframe.onerror = () => {
+                    console.warn(`Could not load ${mfe.name} for storage clearing`);
+                    document.body.removeChild(iframe);
+                    resolve();
+                };
+
+                iframe.src = `${targetUrl}?logout=true`;
+                document.body.appendChild(iframe);
+            });
+        });
+
+        // Wait for all clearing operations to complete (with timeout)
+        try {
+            await Promise.allSettled(clearPromises);
+        } catch (error) {
+            console.warn('Some micro-frontends could not be cleared:', error);
+        }
+    };
+
     const handleLogout = async () => {
         try {
             await apiClient.post('/auth/logout');
         } catch (e) {
             console.error('Logout error:', e);
         } finally {
-            localStorage.clear();
+            // Broadcast logout to other tabs/micro-frontends on same origin
+            broadcastLogout();
+
+            // Clear current micro-frontend's data
+            clearAllAuthData();
+
+            // Clear localStorage from all other micro-frontends (cross-origin)
+            await clearAllMicroFrontendStorage();
+
+            // Clean URL from any remaining tokens before redirect
+            cleanUrlFromTokens();
+
+            // Redirect to login
             window.location.href = 'https://signin.tclaccord.com';
         }
     };
