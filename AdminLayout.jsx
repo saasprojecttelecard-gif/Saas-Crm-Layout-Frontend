@@ -25,7 +25,7 @@ import {
     Building
 } from 'lucide-react';
 import './index.css';
-import apiClient from './apiClient'; // Assuming this is defined and works
+import apiClient from './apiClient';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -65,23 +65,24 @@ const ThemeProvider = ({ children }) => {
 };
 
 const NAVIGATION_CONFIG = {
-    '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002, basename: 'dashboard' },
-    '/users': { url: 'https://members.tclaccord.com/users', port: 3005, basename: 'users' },
-    '/users/role': { url: 'https://members.tclaccord.com/users/role', port: 3005, basename: 'users' },
-    '/users/permission': { url: 'https://members.tclaccord.com/users/permission', port: 3005, basename: 'users' },
-    '/sales/leads': { url: 'https://transaction.tclaccord.com/sales/leads', port: 3004, basename: 'sales' },
-    '/sales/contacts': { url: 'https://transaction.tclaccord.com/sales/contacts', port: 3004, basename: 'sales' },
-    '/sales/opportunities': { url: 'https://transaction.tclaccord.com/sales/opportunities', port: 3004, basename: 'sales' },
-    '/inventory/products': { url: 'https://asset.tclaccord.com/inventory/products', port: 3003, basename: 'inventory' },
-    '/inventory/categories': { url: 'https://asset.tclaccord.com/inventory/categories', port: 3003, basename: 'inventory' },
-    '/tickets': { url: 'https://token.tclaccord.com/tickets', port: 3006, basename: 'tickets' },
-    '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007, basename: 'marketing' },
-    '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007, basename: 'marketing' },
-    '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008, basename: 'tenant' },
+    '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002 },
+    '/users': { url: 'https://members.tclaccord.com/users', port: 3005 },
+    '/users/list': { url: 'https://members.tclaccord.com/users', port: 3005 },
+    '/users/role': { url: 'https://members.tclaccord.com/users/role', port: 3005 },
+    '/users/permission': { url: 'https://members.tclaccord.com/users/permission', port: 3005 },
+    '/sales/leads': { url: 'https://transaction.tclaccord.com/sales/leads', port: 3004 },
+    '/sales/contacts': { url: 'https://transaction.tclaccord.com/sales/contacts', port: 3004 },
+    '/sales/opportunities': { url: 'https://transaction.tclaccord.com/sales/opportunities', port: 3004 },
+    '/inventory/products': { url: 'https://asset.tclaccord.com/inventory/products', port: 3003 },
+    '/inventory/categories': { url: 'https://asset.tclaccord.com/inventory/categories', port: 3003 },
+    '/tickets': { url: 'https://token.tclaccord.com/tickets', port: 3006 },
+    '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007 },
+    '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007 },
+    '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008 },
 };
 
-// This maps a specific child path to its parent menu key for automatic expansion.
 const PARENT_KEYS = {
+    '/users/list': '/users',
     '/users/role': '/users',
     '/users/permission': '/users',
     '/sales/leads': '/sales',
@@ -107,33 +108,26 @@ const AdminLayoutContent = ({ children }) => {
 
     const handleMenuClick = ({ key }) => {
         const config = NAVIGATION_CONFIG[key];
-        const isDev = import.meta.env.DEV || false;
 
         if (config) {
             const currentHost = window.location.hostname;
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
-                // Same host: Use React Router for fast, client-side navigation.
-                // navigate(key);
                 navigate(key, { replace: true });
-
             } else {
-                // Different host (Micro-frontend): Perform a full page redirect.
-                let url = isDev ? `http://localhost:${config.port}${key}` : config.url;
+                let url = `http://localhost:${config.port}${key}`;
                 const token = localStorage.getItem('token');
                 const tenantId = localStorage.getItem('tenantId');
                 const userId = localStorage.getItem('userId');
                 const name = localStorage.getItem('name');
 
                 if (token) {
-                    // Append authentication details for the redirect
                     url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`;
                 }
                 window.location.href = url;
             }
         } else {
-            // Fallback for any keys that aren't in the config (e.g., custom local routes).
             navigate(key);
         }
 
@@ -144,31 +138,19 @@ const AdminLayoutContent = ({ children }) => {
         const currentPath = location.pathname;
         const currentHost = window.location.hostname;
 
-        // 1. Check for explicit path matches first (child pages)
-        if (currentPath === '/users/role') return ['/users/role'];
-        if (currentPath === '/users/permission') return ['/users/permission'];
-        if (currentPath === '/sales/leads') return ['/sales/leads'];
-        if (currentPath === '/sales/contacts') return ['/sales/contacts'];
-        if (currentPath === '/sales/opportunities') return ['/sales/opportunities'];
-        if (currentPath === '/inventory/products') return ['/inventory/products'];
-        if (currentPath === '/inventory/categories') return ['/inventory/categories'];
-        if (currentPath === '/marketing/email-templates') return ['/marketing/email-templates'];
-        if (currentPath === '/marketing/campaigns') return ['/marketing/campaigns'];
+        if (NAVIGATION_CONFIG[currentPath]) return [currentPath];
 
-        // 2. Handle main menu items and root paths on micro-frontends
-        if (currentHost.includes('dashboard') || currentPath === '/dashboard') return ['/dashboard'];
-        if (currentHost.includes('token') || currentPath === '/tickets') return ['/tickets'];
-        if (currentHost.includes('occupant') || currentPath === '/tenants') return ['/tenants'];
-
-        // ✨ CRITICAL FIX: Handle the root of the 'users' micro-frontend (where location.pathname is '/')
+        if (currentHost.includes('dashboard')) return ['/dashboard'];
+        if (currentHost.includes('token')) return ['/tickets'];
+        if (currentHost.includes('occupant')) return ['/tenants'];
         if (currentHost.includes('members')) {
-            if (currentPath === '/') return ['/users'];
-            // For other paths starting with /users (e.g., /users/add, /users/edit/:id), select the parent item.
-            if (currentPath.startsWith('/users')) return ['/users'];
+            if (currentPath === '/') return ['/users/list'];
+            if (currentPath === '/users') return ['/users/list'];
         }
-        if (currentPath === '/users') return ['/users']; // Ensures local SPA routing also selects it
+        if (currentHost.includes('transaction') && currentPath.startsWith('/sales')) return ['/sales'];
+        if (currentHost.includes('asset') && currentPath.startsWith('/inventory')) return ['/inventory'];
+        if (currentHost.includes('strategysphere') && currentPath.startsWith('/marketing')) return ['/marketing'];
 
-        // 3. Default fallback
         return [currentPath];
     };
 
@@ -176,23 +158,15 @@ const AdminLayoutContent = ({ children }) => {
         const selectedKey = getSelectedKeys()[0];
         const parentKey = PARENT_KEYS[selectedKey];
 
-        // Check if the selected key is a child of a collapsible menu
-        if (parentKey) {
-            return [parentKey];
-        }
-
-        // If the selected key is a parent itself (like /users), ensure it is open
-        if (['/users', '/sales', '/inventory', '/marketing'].includes(selectedKey)) {
-            return [selectedKey];
-        }
+        if (parentKey) return [parentKey];
+        if (['/users', '/sales', '/inventory', '/marketing'].includes(selectedKey)) return [selectedKey];
 
         return [];
     };
 
     useEffect(() => {
-        // Automatically set the open keys based on the current location
         setOpenKeys(getOpenKeys());
-    }, [location.pathname, location.hostname]); // Include hostname for micro-frontend awareness
+    }, [location.pathname, location.hostname]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 992);
@@ -208,8 +182,7 @@ const AdminLayoutContent = ({ children }) => {
             console.error('Logout error:', e);
         } finally {
             localStorage.clear();
-            // Use the absolute URL for signin, which should always be a full redirect
-            window.location.href = import.meta.env.VITE_LOGIN_URL || 'https://signin.tclaccord.com';
+            window.location.href = 'https://signin.tclaccord.com';
         }
     };
 
@@ -220,17 +193,17 @@ const AdminLayoutContent = ({ children }) => {
     const menuItems = [
         { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
         {
-            key: '/users', // Parent key
+            key: '/users',
             icon: <UsersRound size={16} />,
             label: 'Users Management',
             children: [
-                { key: '/users', label: 'Users', icon: <Users size={16} /> }, // Child item that navigates to the main users page
+                { key: '/users/list', label: 'Users', icon: <Users size={16} /> },
                 { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
                 { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
             ],
         },
         {
-            key: '/sales', // Parent key
+            key: '/sales',
             icon: <Briefcase size={16} />,
             label: 'Sales',
             children: [
@@ -242,7 +215,7 @@ const AdminLayoutContent = ({ children }) => {
         { key: '/tickets', icon: <Ticket size={16} />, label: 'Ticket' },
         { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
         {
-            key: '/inventory', // Parent key
+            key: '/inventory',
             icon: <Boxes size={16} />,
             label: 'Inventory Management',
             children: [
@@ -251,7 +224,7 @@ const AdminLayoutContent = ({ children }) => {
             ],
         },
         {
-            key: '/marketing', // Parent key
+            key: '/marketing',
             icon: <BadgePercent size={16} />,
             label: 'Marketing',
             children: [
