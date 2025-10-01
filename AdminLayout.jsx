@@ -67,7 +67,7 @@ const ThemeProvider = ({ children }) => {
 const NAVIGATION_CONFIG = {
     '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002 },
     '/users': { url: 'https://members.tclaccord.com/users', port: 3005 },
-    '/users/list': { url: 'https://members.tclaccord.com/users', port: 3005 },
+    '/users/list': { url: 'https://members.tclaccord.com/users/list', port: 3005 },
     '/users/role': { url: 'https://members.tclaccord.com/users/role', port: 3005 },
     '/users/permission': { url: 'https://members.tclaccord.com/users/permission', port: 3005 },
     '/sales/leads': { url: 'https://transaction.tclaccord.com/sales/leads', port: 3004 },
@@ -114,9 +114,21 @@ const AdminLayoutContent = ({ children }) => {
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
-                navigate(key, { replace: true });
+                const pathParts = key.split('/').filter(Boolean);
+                const routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                navigate(routePath, { replace: true });
             } else {
-                let url = `http://localhost:${config.port}${key}`;
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                let url;
+
+                if (isDev) {
+                    const pathParts = key.split('/').filter(Boolean);
+                    const routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                    url = `http://localhost:${config.port}${routePath}`;
+                } else {
+                    url = config.url;
+                }
+
                 const token = localStorage.getItem('token');
                 const tenantId = localStorage.getItem('tenantId');
                 const userId = localStorage.getItem('userId');
