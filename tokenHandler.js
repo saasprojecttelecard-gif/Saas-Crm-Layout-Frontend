@@ -39,6 +39,7 @@ export const handleTokenFromUrl = () => {
     const tenantIdFromUrl = urlParams.get('tenantId');
     const userIdFromUrl = urlParams.get('userId');
     const nameFromUrl = urlParams.get('name');
+    const roleFromUrl = urlParams.get('role');
 
     if (tokenFromUrl) {
         localStorage.setItem('token', tokenFromUrl);
@@ -56,12 +57,17 @@ export const handleTokenFromUrl = () => {
         localStorage.setItem('name', decodeURIComponent(nameFromUrl));
     }
 
-    if (tokenFromUrl || tenantIdFromUrl || userIdFromUrl || nameFromUrl) {
+    if (roleFromUrl) {
+        localStorage.setItem('role', decodeURIComponent(roleFromUrl));
+    }
+
+    if (tokenFromUrl || tenantIdFromUrl || userIdFromUrl || nameFromUrl || roleFromUrl) {
         const url = new URL(window.location);
         url.searchParams.delete('token');
         url.searchParams.delete('tenantId');
         url.searchParams.delete('userId');
         url.searchParams.delete('name');
+        url.searchParams.delete('role');
         window.history.replaceState({}, document.title, url.pathname + url.search);
     }
 
@@ -69,12 +75,13 @@ export const handleTokenFromUrl = () => {
         token: localStorage.getItem('token'),
         tenantId: localStorage.getItem('tenantId'),
         userId: localStorage.getItem('userId'),
-        name: localStorage.getItem('name')
+        name: localStorage.getItem('name'),
+        role: localStorage.getItem('role')
     };
 };
 
 export const clearAllAuthData = () => {
-    const authKeys = ['token', 'tenantId', 'userId', 'name', 'user'];
+    const authKeys = ['token', 'tenantId', 'userId', 'name', 'role', 'user'];
     authKeys.forEach(key => {
         localStorage.removeItem(key);
         sessionStorage.removeItem(key);

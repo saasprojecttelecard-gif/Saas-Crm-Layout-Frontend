@@ -162,9 +162,10 @@ const AdminLayoutContent = ({ children }) => {
                 const tenantId = localStorage.getItem('tenantId');
                 const userId = localStorage.getItem('userId');
                 const name = localStorage.getItem('name');
+                const role = localStorage.getItem('role');
 
                 if (token) {
-                    url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}`;
+                    url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
                 }
                 window.location.href = url;
             }
@@ -367,60 +368,76 @@ const AdminLayoutContent = ({ children }) => {
         { key: 'logout', label: 'Logout', icon: <LogOut size={16} />, onClick: handleLogout },
     ];
 
-    const menuItems = [
-        { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
-        {
-            key: '/users',
-            icon: <UsersRound size={16} />,
-            label: 'Users Management',
-            children: [
-                { key: '/users/list', label: 'Users', icon: <Users size={16} /> },
-                { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
-                { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
-            ],
-        },
-        {
-            key: '/sales',
-            icon: <Briefcase size={16} />,
-            label: 'Sales',
-            children: [
-                { key: '/sales/leads', label: 'Leads', icon: <Funnel size={16} /> },
-                { key: '/sales/contacts', label: 'Contacts', icon: <UserPlus size={16} /> },
-                { key: '/sales/opportunities', label: 'Opportunities', icon: <Lightbulb size={16} /> },
-            ],
-        },
-        { key: '/tickets', icon: <Ticket size={16} />, label: 'Ticket' },
-        { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
-        {
-            key: '/inventory',
-            icon: <Boxes size={16} />,
-            label: 'Inventory Management',
-            children: [
-                { key: '/inventory/products', label: 'Products', icon: <Package size={16} /> },
-                { key: '/inventory/categories', label: 'Categories', icon: <Layers size={16} /> },
-            ],
-        },
-        {
-            key: '/marketing',
-            icon: <BadgePercent size={16} />,
-            label: 'Marketing',
-            children: [
-                { key: '/marketing/email-templates', label: 'Email Templates', icon: <Mail size={16} /> },
-                { key: '/marketing/campaigns', label: 'Campaigns', icon: <Megaphone size={16} /> },
-            ],
-        },
-        {
-            key: '/subscription',
-            icon: <CreditCard size={16} />,
-            label: 'Subscription Management',
-            children: [
-                { key: '/subscription/licenses', label: 'Licenses', icon: <FileText size={16} /> },
-                { key: '/subscription/packages', label: 'Packages', icon: <Package size={16} /> },
-                { key: '/subscription/subscriptions', label: 'Subscriptions', icon: <Settings size={16} /> },
-                { key: '/subscription/subscription-requests', label: 'Subscription Requests', icon: <UserCheck size={16} /> },
-            ],
-        },
-    ];
+    // Get user role from localStorage
+    const userRole = localStorage.getItem('role');
+
+    // Function to filter menu items based on role
+    const getFilteredMenuItems = () => {
+        const allMenuItems = [
+            { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
+            {
+                key: '/users',
+                icon: <UsersRound size={16} />,
+                label: 'Users Management',
+                children: [
+                    { key: '/users/list', label: 'Users', icon: <Users size={16} /> },
+                    { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
+                    { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
+                ],
+            },
+            {
+                key: '/sales',
+                icon: <Briefcase size={16} />,
+                label: 'Sales',
+                children: [
+                    { key: '/sales/leads', label: 'Leads', icon: <Funnel size={16} /> },
+                    { key: '/sales/contacts', label: 'Contacts', icon: <UserPlus size={16} /> },
+                    { key: '/sales/opportunities', label: 'Opportunities', icon: <Lightbulb size={16} /> },
+                ],
+            },
+            { key: '/tickets', icon: <Ticket size={16} />, label: 'Ticket' },
+            {
+                key: '/inventory',
+                icon: <Boxes size={16} />,
+                label: 'Inventory Management',
+                children: [
+                    { key: '/inventory/products', label: 'Products', icon: <Package size={16} /> },
+                    { key: '/inventory/categories', label: 'Categories', icon: <Layers size={16} /> },
+                ],
+            },
+            {
+                key: '/marketing',
+                icon: <BadgePercent size={16} />,
+                label: 'Marketing',
+                children: [
+                    { key: '/marketing/email-templates', label: 'Email Templates', icon: <Mail size={16} /> },
+                    { key: '/marketing/campaigns', label: 'Campaigns', icon: <Megaphone size={16} /> },
+                ],
+            },
+        ];
+
+        // Add super_admin only menu items
+        if (userRole === 'super_admin') {
+            allMenuItems.push(
+                { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
+                {
+                    key: '/subscription',
+                    icon: <CreditCard size={16} />,
+                    label: 'Subscription Management',
+                    children: [
+                        { key: '/subscription/licenses', label: 'Licenses', icon: <FileText size={16} /> },
+                        { key: '/subscription/packages', label: 'Packages', icon: <Package size={16} /> },
+                        { key: '/subscription/subscriptions', label: 'Subscriptions', icon: <Settings size={16} /> },
+                        { key: '/subscription/subscription-requests', label: 'Subscription Requests', icon: <UserCheck size={16} /> },
+                    ],
+                }
+            );
+        }
+
+        return allMenuItems;
+    };
+
+    const menuItems = getFilteredMenuItems();
 
     return (
         <Layout className="admin-layout-main">
