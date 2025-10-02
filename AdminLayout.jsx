@@ -142,8 +142,25 @@ const AdminLayoutContent = ({ children }) => {
             const configHost = new URL(config.url).hostname;
 
             if (currentHost === configHost) {
+                // Handle navigation within the same micro-frontend
                 const pathParts = key.split('/').filter(Boolean);
-                const routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                let routePath;
+
+                // For users management routes, extract the correct path
+                if (key.startsWith('/users/')) {
+                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'users' prefix
+                } else if (key.startsWith('/sales/')) {
+                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'sales' prefix
+                } else if (key.startsWith('/inventory/')) {
+                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'inventory' prefix
+                } else if (key.startsWith('/marketing/')) {
+                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'marketing' prefix
+                } else if (key.startsWith('/subscription/')) {
+                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'subscription' prefix
+                } else {
+                    routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                }
+
                 navigate(routePath, { replace: true });
             } else {
                 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -151,10 +168,34 @@ const AdminLayoutContent = ({ children }) => {
 
                 if (isDev) {
                     const pathParts = key.split('/').filter(Boolean);
-                    const routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                    let routePath;
+
+                    // For child menu items, extract the correct path
+                    if (key.startsWith('/users/')) {
+                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'users' prefix
+                    } else if (key.startsWith('/sales/')) {
+                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'sales' prefix
+                    } else if (key.startsWith('/inventory/')) {
+                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'inventory' prefix
+                    } else if (key.startsWith('/marketing/')) {
+                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'marketing' prefix
+                    } else if (key.startsWith('/subscription/')) {
+                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'subscription' prefix
+                    } else {
+                        routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                    }
+
                     url = `http://localhost:${config.port}${routePath}`;
                 } else {
-                    url = config.url;
+                    // For production, use the configured URL
+                    const pathParts = key.split('/').filter(Boolean);
+                    if (pathParts.length > 1) {
+                        const routePath = `/${pathParts.slice(1).join('/')}`;
+                        const baseUrl = new URL(config.url);
+                        url = `${baseUrl.origin}${routePath}`;
+                    } else {
+                        url = config.url;
+                    }
                 }
 
                 const token = localStorage.getItem('token');
@@ -185,9 +226,11 @@ const AdminLayoutContent = ({ children }) => {
         if (currentHost.includes('occupant')) return ['/tenants'];
 
         if (currentHost.includes('members')) {
-            if (currentPath === '/' || currentPath === '/list') return ['/users/list'];
-            if (currentPath === '/role') return ['/users/role'];
-            if (currentPath === '/permission') return ['/users/permission'];
+            if (currentPath === '/' || currentPath === '/list' || currentPath === '/users/list') return ['/users/list'];
+            if (currentPath === '/role' || currentPath === '/users/role') return ['/users/role'];
+            if (currentPath === '/permission' || currentPath === '/users/permission') return ['/users/permission'];
+            if (currentPath === '/add' || currentPath === '/users/add') return ['/users/list']; // Add user page should highlight Users
+            if (currentPath.startsWith('/edit') || currentPath.startsWith('/users/edit')) return ['/users/list']; // Edit user page should highlight Users
             return ['/users/list']; // Default for users MFE
         }
 
@@ -219,6 +262,51 @@ const AdminLayoutContent = ({ children }) => {
         }
 
         // Fallback for localhost development or unknown hosts
+        // Try to match based on current path for localhost development
+        if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+            // Check if we're in a specific micro-frontend based on port
+            const port = window.location.port;
+
+            if (port === '3005') { // Users MFE
+                if (currentPath === '/' || currentPath === '/list') return ['/users/list'];
+                if (currentPath === '/role') return ['/users/role'];
+                if (currentPath === '/permission') return ['/users/permission'];
+                if (currentPath === '/add' || currentPath.startsWith('/edit')) return ['/users/list'];
+                return ['/users/list'];
+            }
+
+            if (port === '3004') { // Sales MFE
+                if (currentPath === '/' || currentPath === '/leads') return ['/sales/leads'];
+                if (currentPath === '/contacts') return ['/sales/contacts'];
+                if (currentPath === '/opportunities') return ['/sales/opportunities'];
+                return ['/sales/leads'];
+            }
+
+            if (port === '3003') { // Inventory MFE
+                if (currentPath === '/' || currentPath === '/products') return ['/inventory/products'];
+                if (currentPath === '/categories') return ['/inventory/categories'];
+                return ['/inventory/products'];
+            }
+
+            if (port === '3007') { // Marketing MFE
+                if (currentPath === '/' || currentPath === '/email-templates') return ['/marketing/email-templates'];
+                if (currentPath === '/campaigns') return ['/marketing/campaigns'];
+                return ['/marketing/email-templates'];
+            }
+
+            if (port === '3009') { // Subscription MFE
+                if (currentPath === '/' || currentPath === '/licenses') return ['/subscription/licenses'];
+                if (currentPath === '/packages') return ['/subscription/packages'];
+                if (currentPath === '/subscriptions') return ['/subscription/subscriptions'];
+                if (currentPath === '/subscription-requests') return ['/subscription/subscription-requests'];
+                return ['/subscription/licenses'];
+            }
+
+            if (port === '3002') return ['/dashboard']; // Dashboard MFE
+            if (port === '3006') return ['/tickets']; // Tickets MFE
+            if (port === '3008') return ['/tenants']; // Tenants MFE
+        }
+
         return [currentPath];
     };
 
