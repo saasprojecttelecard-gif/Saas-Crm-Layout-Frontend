@@ -29,7 +29,7 @@ import {
     UserCheck
 } from 'lucide-react';
 import './index.css';
-import { clearAllAuthData, broadcastLogout, setupLogoutListener } from './tokenHandler';
+import { clearAllAuthData, broadcastLogout, setupLogoutListener, handleTokenFromUrl } from './tokenHandler';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -244,7 +244,8 @@ const AdminLayoutContent = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Clean URL from tokens on component mount and route changes
+        // Handle tokens from URL first, then clean URL
+        handleTokenFromUrl();
         cleanUrlFromTokens();
     }, [location.pathname, location.search]);
 
