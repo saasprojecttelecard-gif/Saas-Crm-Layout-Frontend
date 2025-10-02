@@ -22,7 +22,11 @@ import {
     BadgePercent,
     Mail,
     Megaphone,
-    Building
+    Building,
+    CreditCard,
+    FileText,
+    Settings,
+    UserCheck
 } from 'lucide-react';
 import './index.css';
 import apiClient from './apiClient';
@@ -96,6 +100,10 @@ const NAVIGATION_CONFIG = {
     '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007 },
     '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007 },
     '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008 },
+    '/subscription/licenses': { url: 'https://packages.tclaccord.com/subscription/licenses', port: 3009 },
+    '/subscription/packages': { url: 'https://packages.tclaccord.com/subscription/packages', port: 3009 },
+    '/subscription/subscriptions': { url: 'https://packages.tclaccord.com/subscription/subscriptions', port: 3009 },
+    '/subscription/subscription-requests': { url: 'https://packages.tclaccord.com/subscription/subscription-requests', port: 3009 },
 };
 
 const PARENT_KEYS = {
@@ -109,6 +117,10 @@ const PARENT_KEYS = {
     '/inventory/categories': '/inventory',
     '/marketing/email-templates': '/marketing',
     '/marketing/campaigns': '/marketing',
+    '/subscription/licenses': '/subscription',
+    '/subscription/packages': '/subscription',
+    '/subscription/subscriptions': '/subscription',
+    '/subscription/subscription-requests': '/subscription',
 };
 
 const AdminLayoutContent = ({ children }) => {
@@ -198,6 +210,14 @@ const AdminLayoutContent = ({ children }) => {
             return ['/marketing/email-templates']; // Default for marketing MFE
         }
 
+        if (currentHost.includes('packages')) {
+            if (currentPath === '/subscription/licenses') return ['/subscription/licenses'];
+            if (currentPath === '/subscription/packages') return ['/subscription/packages'];
+            if (currentPath === '/subscription/subscriptions') return ['/subscription/subscriptions'];
+            if (currentPath === '/subscription/subscription-requests') return ['/subscription/subscription-requests'];
+            return ['/subscription/licenses']; // Default for subscription MFE
+        }
+
         // Fallback for localhost development or unknown hosts
         return [currentPath];
     };
@@ -207,7 +227,7 @@ const AdminLayoutContent = ({ children }) => {
         const parentKey = PARENT_KEYS[selectedKey];
 
         if (parentKey) return [parentKey];
-        if (['/users', '/sales', '/inventory', '/marketing'].includes(selectedKey)) return [selectedKey];
+        if (['/users', '/sales', '/inventory', '/marketing', '/subscription'].includes(selectedKey)) return [selectedKey];
 
         return [];
     };
@@ -387,6 +407,17 @@ const AdminLayoutContent = ({ children }) => {
             children: [
                 { key: '/marketing/email-templates', label: 'Email Templates', icon: <Mail size={16} /> },
                 { key: '/marketing/campaigns', label: 'Campaigns', icon: <Megaphone size={16} /> },
+            ],
+        },
+        {
+            key: '/subscription',
+            icon: <CreditCard size={16} />,
+            label: 'Subscription Management',
+            children: [
+                { key: '/subscription/licenses', label: 'Licenses', icon: <FileText size={16} /> },
+                { key: '/subscription/packages', label: 'Packages', icon: <Package size={16} /> },
+                { key: '/subscription/subscriptions', label: 'Subscriptions', icon: <Settings size={16} /> },
+                { key: '/subscription/subscription-requests', label: 'Subscription Requests', icon: <UserCheck size={16} /> },
             ],
         },
     ];

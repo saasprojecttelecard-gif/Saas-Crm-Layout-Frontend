@@ -137,16 +137,40 @@ export const setupLogoutListener = (onLogout) => {
 export const redirectToAuth = (currentUrl = null) => {
     const redirectUrl = currentUrl || window.location.href;
     const encodedUrl = encodeURIComponent(redirectUrl);
-    window.location.href = `http://localhost:3001/auth?redirect=${encodedUrl}`;
+
+    // Use environment variable for auth URL with proper fallbacks
+    let authUrl;
+
+    if (typeof window !== 'undefined') {
+        // Try to get from environment variable first
+        authUrl = import.meta?.env?.VITE_LOGIN_URL;
+
+        // Fallback based on environment
+        if (!authUrl) {
+            authUrl = window.location.hostname === 'localhost'
+                ? 'http://localhost:3001/auth'
+                : 'https://signin.tclaccord.com/auth';
+        }
+    } else {
+        authUrl = 'https://signin.tclaccord.com/auth';
+    }
+
+    window.location.href = `${authUrl}?redirect=${encodedUrl}`;
 };
 
-export const checkAuthAndRedirect = () => {
+export const checkAuthAndRedirect = (options = {}) => {
+    const { requireAuth = true } = options;
     const { token, tenantId } = handleTokenFromUrl();
+
+    // If auth is not required, just return the token data without redirecting
+    if (!requireAuth) {
+        return { token, tenantId, userId: localStorage.getItem('userId'), name: localStorage.getItem('name') };
+    }
 
     if (!token) {
         redirectToAuth();
         return false;
     }
 
-    return { token, tenantId };
+    return { token, tenantId, userId: localStorage.getItem('userId'), name: localStorage.getItem('name') };
 };
