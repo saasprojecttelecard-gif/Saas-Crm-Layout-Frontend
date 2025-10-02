@@ -41,6 +41,17 @@ export const handleTokenFromUrl = () => {
     const nameFromUrl = urlParams.get('name');
     const roleFromUrl = urlParams.get('role');
 
+    // Debug logging
+    if (tokenFromUrl || tenantIdFromUrl || userIdFromUrl || nameFromUrl || roleFromUrl) {
+        console.log('handleTokenFromUrl - URL params found:', {
+            token: tokenFromUrl ? 'present' : 'missing',
+            tenantId: tenantIdFromUrl,
+            userId: userIdFromUrl,
+            name: nameFromUrl,
+            role: roleFromUrl
+        });
+    }
+
     if (tokenFromUrl) {
         localStorage.setItem('token', tokenFromUrl);
     }
@@ -61,6 +72,17 @@ export const handleTokenFromUrl = () => {
         localStorage.setItem('role', decodeURIComponent(roleFromUrl));
     }
 
+    // If we have user data from URL, reconstruct and store the user object
+    if (tokenFromUrl && (tenantIdFromUrl || userIdFromUrl || nameFromUrl || roleFromUrl)) {
+        const user = {
+            id: userIdFromUrl,
+            name: nameFromUrl ? decodeURIComponent(nameFromUrl) : localStorage.getItem('name'),
+            tenant_id: tenantIdFromUrl,
+            role: roleFromUrl ? decodeURIComponent(roleFromUrl) : localStorage.getItem('role')
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+    }
+
     if (tokenFromUrl || tenantIdFromUrl || userIdFromUrl || nameFromUrl || roleFromUrl) {
         const url = new URL(window.location);
         url.searchParams.delete('token');
@@ -71,13 +93,25 @@ export const handleTokenFromUrl = () => {
         window.history.replaceState({}, document.title, url.pathname + url.search);
     }
 
-    return {
+    const result = {
         token: localStorage.getItem('token'),
         tenantId: localStorage.getItem('tenantId'),
         userId: localStorage.getItem('userId'),
         name: localStorage.getItem('name'),
         role: localStorage.getItem('role')
     };
+
+    // Debug logging
+    console.log('handleTokenFromUrl - localStorage after processing:', {
+        token: result.token ? 'present' : 'missing',
+        tenantId: result.tenantId,
+        userId: result.userId,
+        name: result.name,
+        role: result.role,
+        user: localStorage.getItem('user') ? 'present' : 'missing'
+    });
+
+    return result;
 };
 
 export const clearAllAuthData = () => {
@@ -155,11 +189,11 @@ export const redirectToAuth = (currentUrl = null) => {
         // Fallback based on environment
         if (!authUrl) {
             authUrl = window.location.hostname === 'localhost'
-                ? 'http://localhost:3001/auth'
-                : 'https://signin.tclaccord.com/auth';
+                ? 'http://localhost:3001'
+                : 'https://signin.tclaccord.com';
         }
     } else {
-        authUrl = 'https://signin.tclaccord.com/auth';
+        authUrl = 'https://signin.tclaccord.com';
     }
 
     window.location.href = `${authUrl}?redirect=${encodedUrl}`;
@@ -167,11 +201,11 @@ export const redirectToAuth = (currentUrl = null) => {
 
 export const checkAuthAndRedirect = (options = {}) => {
     const { requireAuth = true } = options;
-    const { token, tenantId } = handleTokenFromUrl();
+    const { token, tenantId, userId, name, role } = handleTokenFromUrl();
 
     // If auth is not required, just return the token data without redirecting
     if (!requireAuth) {
-        return { token, tenantId, userId: localStorage.getItem('userId'), name: localStorage.getItem('name') };
+        return { token, tenantId, userId, name, role };
     }
 
     if (!token) {
@@ -179,5 +213,5 @@ export const checkAuthAndRedirect = (options = {}) => {
         return false;
     }
 
-    return { token, tenantId, userId: localStorage.getItem('userId'), name: localStorage.getItem('name') };
+    return { token, tenantId, userId, name, role };
 };

@@ -29,7 +29,6 @@ import {
     UserCheck
 } from 'lucide-react';
 import './index.css';
-import apiClient from './apiClient';
 import { clearAllAuthData, broadcastLogout, setupLogoutListener } from './tokenHandler';
 
 const { Header, Sider, Content, Footer } = Layout;
@@ -343,7 +342,14 @@ const AdminLayoutContent = ({ children }) => {
 
     const handleLogout = async () => {
         try {
-            await apiClient.post('/auth/logout');
+            // Use the auth API directly for logout
+            await fetch('https://auth.tclaccord.com/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
         } catch (e) {
             console.error('Logout error:', e);
         } finally {
