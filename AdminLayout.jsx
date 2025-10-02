@@ -143,22 +143,24 @@ const AdminLayoutContent = ({ children }) => {
 
             if (currentHost === configHost) {
                 // Handle navigation within the same micro-frontend
+                // The key includes the basename (e.g., '/users/list'), but React Router expects just the route part (e.g., '/list')
                 const pathParts = key.split('/').filter(Boolean);
                 let routePath;
 
-                // For users management routes, extract the correct path
+                // Extract the route path by removing the basename prefix
                 if (key.startsWith('/users/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'users' prefix
+                    routePath = `/${pathParts.slice(1).join('/')}`; // '/users/list' -> '/list'
                 } else if (key.startsWith('/sales/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'sales' prefix
+                    routePath = `/${pathParts.slice(1).join('/')}`; // '/sales/leads' -> '/leads'
                 } else if (key.startsWith('/inventory/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'inventory' prefix
+                    routePath = `/${pathParts.slice(1).join('/')}`; // '/inventory/products' -> '/products'
                 } else if (key.startsWith('/marketing/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'marketing' prefix
+                    routePath = `/${pathParts.slice(1).join('/')}`; // '/marketing/campaigns' -> '/campaigns'
                 } else if (key.startsWith('/subscription/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'subscription' prefix
+                    routePath = `/${pathParts.slice(1).join('/')}`; // '/subscription/licenses' -> '/licenses'
                 } else {
-                    routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                    // For single-level routes like '/dashboard', '/tickets', '/tenants'
+                    routePath = '/';
                 }
 
                 navigate(routePath, { replace: true });
@@ -167,35 +169,23 @@ const AdminLayoutContent = ({ children }) => {
                 let url;
 
                 if (isDev) {
-                    const pathParts = key.split('/').filter(Boolean);
+                    // For development, construct localhost URL with correct path
+                    // The URL should include the full path as it appears in the browser
+                    // e.g., '/users/list' should go to 'http://localhost:3005/users/list'
                     let routePath;
 
-                    // For child menu items, extract the correct path
-                    if (key.startsWith('/users/')) {
-                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'users' prefix
-                    } else if (key.startsWith('/sales/')) {
-                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'sales' prefix
-                    } else if (key.startsWith('/inventory/')) {
-                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'inventory' prefix
-                    } else if (key.startsWith('/marketing/')) {
-                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'marketing' prefix
-                    } else if (key.startsWith('/subscription/')) {
-                        routePath = `/${pathParts.slice(1).join('/')}`; // Remove 'subscription' prefix
+                    if (key.startsWith('/users/') || key.startsWith('/sales/') ||
+                        key.startsWith('/inventory/') || key.startsWith('/marketing/') ||
+                        key.startsWith('/subscription/')) {
+                        routePath = key; // Keep full path for child menu items
                     } else {
-                        routePath = pathParts.length > 1 ? `/${pathParts.slice(1).join('/')}` : '/';
+                        routePath = '/'; // For single-level routes like '/dashboard'
                     }
 
                     url = `http://localhost:${config.port}${routePath}`;
                 } else {
-                    // For production, use the configured URL
-                    const pathParts = key.split('/').filter(Boolean);
-                    if (pathParts.length > 1) {
-                        const routePath = `/${pathParts.slice(1).join('/')}`;
-                        const baseUrl = new URL(config.url);
-                        url = `${baseUrl.origin}${routePath}`;
-                    } else {
-                        url = config.url;
-                    }
+                    // For production, use the configured URL which should be the full URL
+                    url = config.url;
                 }
 
                 const token = localStorage.getItem('token');
