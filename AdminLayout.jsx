@@ -238,11 +238,19 @@ const AdminLayoutContent = ({ children }) => {
             return ['/marketing/email-templates'];
         }
 
+        // if (currentHost.includes('packages')) {
+        //     if (currentPath === '/subscription/licenses') return ['/subscription/licenses'];
+        //     if (currentPath === '/subscription/packages') return ['/subscription/packages'];
+        //     if (currentPath === '/subscription/subscriptions') return ['/subscription/subscriptions'];
+        //     if (currentPath === '/subscription/subscription-requests') return ['/subscription/subscription-requests'];
+        //     return ['/subscription/licenses'];
+        // }
+
         if (currentHost.includes('packages')) {
-            if (currentPath === '/subscription/licenses') return ['/subscription/licenses'];
-            if (currentPath === '/subscription/packages') return ['/subscription/packages'];
-            if (currentPath === '/subscription/subscriptions') return ['/subscription/subscriptions'];
-            if (currentPath === '/subscription/subscription-requests') return ['/subscription/subscription-requests'];
+            if (currentPath.startsWith('/subscription/licenses')) return ['/subscription/licenses'];
+            if (currentPath.startsWith('/subscription/packages')) return ['/subscription/packages'];
+            if (currentPath.startsWith('/subscription/subscriptions')) return ['/subscription/subscriptions'];
+            if (currentPath.startsWith('/subscription/subscription-requests')) return ['/subscription/subscription-requests'];
             return ['/subscription/licenses'];
         }
 
@@ -276,11 +284,19 @@ const AdminLayoutContent = ({ children }) => {
                 return ['/marketing/email-templates'];
             }
 
+            // if (port === '3009') {
+            //     if (currentPath === '/' || currentPath === '/licenses') return ['/subscription/licenses'];
+            //     if (currentPath === '/packages') return ['/subscription/packages'];
+            //     if (currentPath === '/subscriptions') return ['/subscription/subscriptions'];
+            //     if (currentPath === '/subscription-requests') return ['/subscription/subscription-requests'];
+            //     return ['/subscription/licenses'];
+            // }
+
             if (port === '3009') {
-                if (currentPath === '/' || currentPath === '/licenses') return ['/subscription/licenses'];
-                if (currentPath === '/packages') return ['/subscription/packages'];
-                if (currentPath === '/subscriptions') return ['/subscription/subscriptions'];
-                if (currentPath === '/subscription-requests') return ['/subscription/subscription-requests'];
+                if (currentPath.startsWith('/licenses')) return ['/subscription/licenses'];
+                if (currentPath.startsWith('/packages')) return ['/subscription/packages'];
+                if (currentPath.startsWith('/subscriptions')) return ['/subscription/subscriptions'];
+                if (currentPath.startsWith('/subscription-requests')) return ['/subscription/subscription-requests'];
                 return ['/subscription/licenses'];
             }
 
@@ -625,6 +641,7 @@ const AdminLayoutContent = ({ children }) => {
                         width={250}
                         collapsedWidth={80}
                         className="admin-sider"
+                        style={{ overflowX: 'auto' }}
                     >
                         <Menu
                             theme="light"
