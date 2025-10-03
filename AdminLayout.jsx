@@ -135,31 +135,30 @@ const AdminLayoutContent = ({ children }) => {
     };
 
     const handleMenuClick = ({ key }) => {
+        console.log('🔍 Menu clicked:', key);
         const config = NAVIGATION_CONFIG[key];
+        console.log('🔍 Config found:', config);
 
         if (config) {
             const currentHost = window.location.hostname;
             const configHost = new URL(config.url).hostname;
+            console.log('🔍 Current host:', currentHost, 'Config host:', configHost);
 
             if (currentHost === configHost) {
-                // Handle navigation within the same micro-frontend
-                // The key includes the basename (e.g., '/users/list'), but React Router expects just the route part (e.g., '/list')
                 const pathParts = key.split('/').filter(Boolean);
                 let routePath;
 
-                // Extract the route path by removing the basename prefix
                 if (key.startsWith('/users/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // '/users/list' -> '/list'
+                    routePath = `/${pathParts.slice(1).join('/')}`;
                 } else if (key.startsWith('/sales/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // '/sales/leads' -> '/leads'
+                    routePath = `/${pathParts.slice(1).join('/')}`;
                 } else if (key.startsWith('/inventory/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // '/inventory/products' -> '/products'
+                    routePath = `/${pathParts.slice(1).join('/')}`;
                 } else if (key.startsWith('/marketing/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // '/marketing/campaigns' -> '/campaigns'
+                    routePath = `/${pathParts.slice(1).join('/')}`;
                 } else if (key.startsWith('/subscription/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`; // '/subscription/licenses' -> '/licenses'
+                    routePath = `/${pathParts.slice(1).join('/')}`;
                 } else {
-                    // For single-level routes like '/dashboard', '/tickets', '/tenants'
                     routePath = '/';
                 }
 
@@ -169,22 +168,18 @@ const AdminLayoutContent = ({ children }) => {
                 let url;
 
                 if (isDev) {
-                    // For development, construct localhost URL with correct path
-                    // The URL should include the full path as it appears in the browser
-                    // e.g., '/users/list' should go to 'http://localhost:3005/users/list'
                     let routePath;
 
                     if (key.startsWith('/users/') || key.startsWith('/sales/') ||
                         key.startsWith('/inventory/') || key.startsWith('/marketing/') ||
                         key.startsWith('/subscription/')) {
-                        routePath = key; // Keep full path for child menu items
+                        routePath = key;
                     } else {
-                        routePath = '/'; // For single-level routes like '/dashboard'
+                        routePath = '/';
                     }
 
                     url = `http://localhost:${config.port}${routePath}`;
                 } else {
-                    // For production, use the configured URL which should be the full URL
                     url = config.url;
                 }
 
@@ -193,9 +188,10 @@ const AdminLayoutContent = ({ children }) => {
                 const userId = localStorage.getItem('userId');
                 const name = localStorage.getItem('name');
                 const role = localStorage.getItem('role');
+                const permissions = localStorage.getItem('permissions');
 
                 if (token) {
-                    url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
+                    url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}&permissions=${encodeURIComponent(permissions)}`;
                 }
                 window.location.href = url;
             }
@@ -210,7 +206,6 @@ const AdminLayoutContent = ({ children }) => {
         const currentPath = location.pathname;
         const currentHost = window.location.hostname;
 
-        // Handle host-based menu selection for different micro-frontends
         if (currentHost.includes('dashboard')) return ['/dashboard'];
         if (currentHost.includes('token')) return ['/tickets'];
         if (currentHost.includes('occupant')) return ['/tenants'];
@@ -221,26 +216,26 @@ const AdminLayoutContent = ({ children }) => {
             if (currentPath === '/permission' || currentPath === '/users/permission') return ['/users/permission'];
             if (currentPath === '/add' || currentPath === '/users/add') return ['/users/list']; // Add user page should highlight Users
             if (currentPath.startsWith('/edit') || currentPath.startsWith('/users/edit')) return ['/users/list']; // Edit user page should highlight Users
-            return ['/users/list']; // Default for users MFE
+            return ['/users/list'];
         }
 
         if (currentHost.includes('transaction')) {
             if (currentPath === '/leads') return ['/sales/leads'];
             if (currentPath === '/contacts') return ['/sales/contacts'];
             if (currentPath === '/opportunities') return ['/sales/opportunities'];
-            return ['/sales/leads']; // Default for sales MFE
+            return ['/sales/leads'];
         }
 
         if (currentHost.includes('asset')) {
             if (currentPath === '/products') return ['/inventory/products'];
             if (currentPath === '/categories') return ['/inventory/categories'];
-            return ['/inventory/products']; // Default for inventory MFE
+            return ['/inventory/products'];
         }
 
         if (currentHost.includes('strategysphere')) {
             if (currentPath === '/email-templates') return ['/marketing/email-templates'];
             if (currentPath === '/campaigns') return ['/marketing/campaigns'];
-            return ['/marketing/email-templates']; // Default for marketing MFE
+            return ['/marketing/email-templates'];
         }
 
         if (currentHost.includes('packages')) {
@@ -248,16 +243,13 @@ const AdminLayoutContent = ({ children }) => {
             if (currentPath === '/subscription/packages') return ['/subscription/packages'];
             if (currentPath === '/subscription/subscriptions') return ['/subscription/subscriptions'];
             if (currentPath === '/subscription/subscription-requests') return ['/subscription/subscription-requests'];
-            return ['/subscription/licenses']; // Default for subscription MFE
+            return ['/subscription/licenses'];
         }
 
-        // Fallback for localhost development or unknown hosts
-        // Try to match based on current path for localhost development
         if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
-            // Check if we're in a specific micro-frontend based on port
             const port = window.location.port;
 
-            if (port === '3005') { // Users MFE
+            if (port === '3005') {
                 if (currentPath === '/' || currentPath === '/list') return ['/users/list'];
                 if (currentPath === '/role') return ['/users/role'];
                 if (currentPath === '/permission') return ['/users/permission'];
@@ -265,26 +257,26 @@ const AdminLayoutContent = ({ children }) => {
                 return ['/users/list'];
             }
 
-            if (port === '3004') { // Sales MFE
+            if (port === '3004') {
                 if (currentPath === '/' || currentPath === '/leads') return ['/sales/leads'];
                 if (currentPath === '/contacts') return ['/sales/contacts'];
                 if (currentPath === '/opportunities') return ['/sales/opportunities'];
                 return ['/sales/leads'];
             }
 
-            if (port === '3003') { // Inventory MFE
+            if (port === '3003') {
                 if (currentPath === '/' || currentPath === '/products') return ['/inventory/products'];
                 if (currentPath === '/categories') return ['/inventory/categories'];
                 return ['/inventory/products'];
             }
 
-            if (port === '3007') { // Marketing MFE
+            if (port === '3007') {
                 if (currentPath === '/' || currentPath === '/email-templates') return ['/marketing/email-templates'];
                 if (currentPath === '/campaigns') return ['/marketing/campaigns'];
                 return ['/marketing/email-templates'];
             }
 
-            if (port === '3009') { // Subscription MFE
+            if (port === '3009') {
                 if (currentPath === '/' || currentPath === '/licenses') return ['/subscription/licenses'];
                 if (currentPath === '/packages') return ['/subscription/packages'];
                 if (currentPath === '/subscriptions') return ['/subscription/subscriptions'];
@@ -292,9 +284,9 @@ const AdminLayoutContent = ({ children }) => {
                 return ['/subscription/licenses'];
             }
 
-            if (port === '3002') return ['/dashboard']; // Dashboard MFE
-            if (port === '3006') return ['/tickets']; // Tickets MFE
-            if (port === '3008') return ['/tenants']; // Tenants MFE
+            if (port === '3002') return ['/dashboard'];
+            if (port === '3006') return ['/tickets'];
+            if (port === '3008') return ['/tenants'];
         }
 
         return [currentPath];
@@ -322,17 +314,14 @@ const AdminLayoutContent = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Handle tokens from URL first, then clean URL
         handleTokenFromUrl();
         cleanUrlFromTokens();
     }, [location.pathname, location.search]);
 
     useEffect(() => {
-        // Listen for cross-origin messages to clear localStorage
         const handleMessage = (event) => {
             if (event.data && event.data.action === 'CLEAR_AUTH_DATA') {
                 clearAllAuthData();
-                // Send confirmation back
                 event.source.postMessage({ action: 'AUTH_DATA_CLEARED' }, event.origin);
             }
         };
@@ -342,11 +331,9 @@ const AdminLayoutContent = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Handle logout parameter in URL (when loaded via iframe for clearing)
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('logout') === 'true') {
             clearAllAuthData();
-            // Clean the logout parameter from URL
             const url = new URL(window.location);
             url.searchParams.delete('logout');
             window.history.replaceState({}, document.title, url.pathname + url.search);
@@ -354,7 +341,6 @@ const AdminLayoutContent = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Setup logout listener for cross-tab/cross-MFE logout
         const cleanup = setupLogoutListener(() => {
             clearAllAuthData();
             cleanUrlFromTokens();
@@ -377,7 +363,6 @@ const AdminLayoutContent = ({ children }) => {
 
         const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-        // Create hidden iframes to clear localStorage from each micro-frontend
         const clearPromises = microFrontends.map(mfe => {
             return new Promise((resolve) => {
                 const iframe = document.createElement('iframe');
@@ -387,7 +372,6 @@ const AdminLayoutContent = ({ children }) => {
 
                 iframe.onload = () => {
                     try {
-                        // Send message to iframe to clear its localStorage
                         iframe.contentWindow.postMessage({ action: 'CLEAR_AUTH_DATA' }, '*');
                         setTimeout(() => {
                             document.body.removeChild(iframe);
@@ -411,7 +395,6 @@ const AdminLayoutContent = ({ children }) => {
             });
         });
 
-        // Wait for all clearing operations to complete (with timeout)
         try {
             await Promise.allSettled(clearPromises);
         } catch (error) {
@@ -421,7 +404,6 @@ const AdminLayoutContent = ({ children }) => {
 
     const handleLogout = async () => {
         try {
-            // Use the auth API directly for logout
             await fetch('https://auth.tclaccord.com/api/auth/logout', {
                 method: 'POST',
                 headers: {
@@ -432,19 +414,14 @@ const AdminLayoutContent = ({ children }) => {
         } catch (e) {
             console.error('Logout error:', e);
         } finally {
-            // Broadcast logout to other tabs/micro-frontends on same origin
             broadcastLogout();
 
-            // Clear current micro-frontend's data
             clearAllAuthData();
 
-            // Clear localStorage from all other micro-frontends (cross-origin)
             await clearAllMicroFrontendStorage();
 
-            // Clean URL from any remaining tokens before redirect
             cleanUrlFromTokens();
 
-            // Redirect to login
             window.location.href = 'https://signin.tclaccord.com';
         }
     };
@@ -453,11 +430,76 @@ const AdminLayoutContent = ({ children }) => {
         { key: 'logout', label: 'Logout', icon: <LogOut size={16} />, onClick: handleLogout },
     ];
 
-    // Get user role from localStorage
     const userRole = localStorage.getItem('role');
 
-    // Function to filter menu items based on role
+    // const getFilteredMenuItems = () => {
+    //     const permissions = localStorage.getItem('permissions')
+    //     const allMenuItems = [
+    //         { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
+    //         {
+    //             key: '/users',
+    //             icon: <UsersRound size={16} />,
+    //             label: 'Users Management',
+    //             children: [
+    //                 { key: '/users/list', label: 'Users', icon: <Users size={16} /> },
+    //                 { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
+    //                 { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
+    //             ],
+    //         },
+    //         {
+    //             key: '/sales',
+    //             icon: <Briefcase size={16} />,
+    //             label: 'Sales',
+    //             children: [
+    //                 { key: '/sales/leads', label: 'Leads', icon: <Funnel size={16} /> },
+    //                 { key: '/sales/contacts', label: 'Contacts', icon: <UserPlus size={16} /> },
+    //                 { key: '/sales/opportunities', label: 'Opportunities', icon: <Lightbulb size={16} /> },
+    //             ],
+    //         },
+    //         { key: '/tickets', icon: <Ticket size={16} />, label: 'Ticket' },
+    //         {
+    //             key: '/inventory',
+    //             icon: <Boxes size={16} />,
+    //             label: 'Inventory Management',
+    //             children: [
+    //                 { key: '/inventory/products', label: 'Products', icon: <Package size={16} /> },
+    //                 { key: '/inventory/categories', label: 'Categories', icon: <Layers size={16} /> },
+    //             ],
+    //         },
+    //         {
+    //             key: '/marketing',
+    //             icon: <BadgePercent size={16} />,
+    //             label: 'Marketing',
+    //             children: [
+    //                 { key: '/marketing/email-templates', label: 'Email Templates', icon: <Mail size={16} /> },
+    //                 { key: '/marketing/campaigns', label: 'Campaigns', icon: <Megaphone size={16} /> },
+    //             ],
+    //         },
+    //     ];
+
+    //     // Add super_admin only menu items
+    //     if (userRole === 'super_admin') {
+    //         allMenuItems.push(
+    //             { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
+    //             {
+    //                 key: '/subscription',
+    //                 icon: <CreditCard size={16} />,
+    //                 label: 'Subscription Management',
+    //                 children: [
+    //                     { key: '/subscription/licenses', label: 'Licenses', icon: <FileText size={16} /> },
+    //                     { key: '/subscription/packages', label: 'Packages', icon: <Package size={16} /> },
+    //                     { key: '/subscription/subscriptions', label: 'Subscriptions', icon: <Settings size={16} /> },
+    //                     { key: '/subscription/subscription-requests', label: 'Subscription Requests', icon: <UserCheck size={16} /> },
+    //                 ],
+    //             }
+    //         );
+    //     }
+
+    //     return allMenuItems;
+    // };
     const getFilteredMenuItems = () => {
+        const permissions = JSON.parse(localStorage.getItem('permissions') || '[]');
+
         const allMenuItems = [
             { key: '/dashboard', icon: <LayoutDashboard size={16} />, label: 'Dashboard' },
             {
@@ -465,9 +507,9 @@ const AdminLayoutContent = ({ children }) => {
                 icon: <UsersRound size={16} />,
                 label: 'Users Management',
                 children: [
-                    { key: '/users/list', label: 'Users', icon: <Users size={16} /> },
-                    { key: '/users/role', label: 'Roles', icon: <UserCog size={16} /> },
-                    { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} /> },
+                    { key: '/users/list', label: 'Users', icon: <Users size={16} />, permission: 'view_users' },
+                    { key: '/users/role', label: 'Roles', icon: <UserCog size={16} />, permission: 'view_roles' },
+                    { key: '/users/permission', label: 'Permissions', icon: <ShieldCheck size={16} />, permission: 'view_permissions' },
                 ],
             },
             {
@@ -475,19 +517,24 @@ const AdminLayoutContent = ({ children }) => {
                 icon: <Briefcase size={16} />,
                 label: 'Sales',
                 children: [
-                    { key: '/sales/leads', label: 'Leads', icon: <Funnel size={16} /> },
-                    { key: '/sales/contacts', label: 'Contacts', icon: <UserPlus size={16} /> },
-                    { key: '/sales/opportunities', label: 'Opportunities', icon: <Lightbulb size={16} /> },
+                    { key: '/sales/leads', label: 'Leads', icon: <Funnel size={16} />, permission: 'view_leads' },
+                    { key: '/sales/contacts', label: 'Contacts', icon: <UserPlus size={16} />, permission: 'view_contacts' },
+                    { key: '/sales/opportunities', label: 'Opportunities', icon: <Lightbulb size={16} />, permission: 'view_opportunities' },
                 ],
             },
-            { key: '/tickets', icon: <Ticket size={16} />, label: 'Ticket' },
+            {
+                key: '/tickets',
+                icon: <Ticket size={16} />,
+                label: 'Ticket',
+                permission: 'view_tickets',
+            },
             {
                 key: '/inventory',
                 icon: <Boxes size={16} />,
                 label: 'Inventory Management',
                 children: [
-                    { key: '/inventory/products', label: 'Products', icon: <Package size={16} /> },
-                    { key: '/inventory/categories', label: 'Categories', icon: <Layers size={16} /> },
+                    { key: '/inventory/products', label: 'Products', icon: <Package size={16} />, permission: 'view_products' },
+                    { key: '/inventory/categories', label: 'Categories', icon: <Layers size={16} />, permission: 'view_product_categories' },
                 ],
             },
             {
@@ -495,13 +542,12 @@ const AdminLayoutContent = ({ children }) => {
                 icon: <BadgePercent size={16} />,
                 label: 'Marketing',
                 children: [
-                    { key: '/marketing/email-templates', label: 'Email Templates', icon: <Mail size={16} /> },
-                    { key: '/marketing/campaigns', label: 'Campaigns', icon: <Megaphone size={16} /> },
+                    { key: '/marketing/email-templates', label: 'Email Templates', icon: <Mail size={16} />, permission: 'view_email_templates' },
+                    { key: '/marketing/campaigns', label: 'Campaigns', icon: <Megaphone size={16} />, permission: 'view_campaigns' },
                 ],
             },
         ];
 
-        // Add super_admin only menu items
         if (userRole === 'super_admin') {
             allMenuItems.push(
                 { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
@@ -517,9 +563,30 @@ const AdminLayoutContent = ({ children }) => {
                     ],
                 }
             );
+
+            return allMenuItems;
         }
 
-        return allMenuItems;
+        const hasPermission = (item) => {
+            if (!item.permission) return true;
+            return permissions.includes(item.permission);
+        };
+
+        const filterMenuItems = (items) => {
+            return items.reduce((filtered, item) => {
+                if (item.children) {
+                    const filteredChildren = filterMenuItems(item.children);
+                    if (filteredChildren.length > 0) {
+                        filtered.push({ ...item, children: filteredChildren });
+                    }
+                } else if (hasPermission(item)) {
+                    filtered.push(item);
+                }
+                return filtered;
+            }, []);
+        };
+
+        return filterMenuItems(allMenuItems);
     };
 
     const menuItems = getFilteredMenuItems();

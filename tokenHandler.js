@@ -5,6 +5,7 @@ export const handleTokenFromUrl = () => {
     const userIdFromUrl = urlParams.get('userId');
     const nameFromUrl = urlParams.get('name');
     const roleFromUrl = urlParams.get('role');
+    const permissionsFromUrl = urlParams.get('permissions');
 
     let shouldCleanUrl = false;
 
@@ -34,6 +35,11 @@ export const handleTokenFromUrl = () => {
         shouldCleanUrl = true;
     }
 
+    if (permissionsFromUrl) {
+        localStorage.setItem('permissions', permissionsFromUrl);
+        shouldCleanUrl = true;
+    }
+
     // Clean the URL if any parameter was found
     if (shouldCleanUrl) {
         const url = new URL(window.location);
@@ -42,6 +48,7 @@ export const handleTokenFromUrl = () => {
         url.searchParams.delete('userId');
         url.searchParams.delete('name');
         url.searchParams.delete('role');
+        url.searchParams.delete('permissions');
         window.history.replaceState({}, document.title, url.pathname + url.search);
     }
 
@@ -52,6 +59,7 @@ export const handleTokenFromUrl = () => {
         userId: localStorage.getItem('userId'),
         name: localStorage.getItem('name'),
         role: localStorage.getItem('role'),
+        permissions: localStorage.getItem('permissions')
     };
 };
 
@@ -85,7 +93,7 @@ export const checkAuthAndRedirect = () => {
 
 // Clear all authentication data
 export const clearAllAuthData = () => {
-    const authKeys = ['token', 'tenantId', 'userId', 'name', 'role', 'user'];
+    const authKeys = ['token', 'tenantId', 'userId', 'name', 'role', 'user', 'permissions'];
     authKeys.forEach(key => localStorage.removeItem(key));
 };
 
