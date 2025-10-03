@@ -641,7 +641,7 @@ const AdminLayoutContent = ({ children }) => {
                         width={250}
                         collapsedWidth={80}
                         className="admin-sider"
-                        style={{ overflowX: 'auto' }}
+                        style={{ overflowY: 'auto' }}
                     >
                         <Menu
                             theme="light"
