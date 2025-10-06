@@ -45,7 +45,7 @@ class AuthService {
         try {
             const response = await apiClient.post('/auth/login', {
                 ...credentials,
-                licenseKey: credentials.licenseKey || "DEMO-LICENSE-KEY-123"
+                licenseKey: credentials.licenseKey
             });
 
             const data = response.data;
@@ -60,6 +60,7 @@ class AuthService {
                     localStorage.setItem('userId', data.user.id);
                     localStorage.setItem('name', data.user.name);
                     localStorage.setItem('role', data.user.role);
+                    localStorage.setItem('permissions', JSON.stringify(data.user.permissions));
                 }
 
                 return { success: true, data };
