@@ -43,10 +43,13 @@ class AuthService {
 
     async login(credentials) {
         try {
-            const response = await apiClient.post('/auth/login', {
-                ...credentials,
-                licenseKey: credentials.licenseKey
-            });
+            // const response = await apiClient.post('/auth/login', {
+            //     ...credentials,
+            //     licenseKey: credentials.licenseKey
+            // });
+
+            const response = await apiClient.post('/auth/login', credentials);
+
 
             const data = response.data;
 
