@@ -85,6 +85,7 @@ const ThemeProvider = ({ children }) => {
 };
 
 const NAVIGATION_CONFIG = {
+    '/auth': { url: 'https://auth.tclaccord.com/auth', port: 3001 },
     '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002 },
     '/users': { url: 'https://members.tclaccord.com/users', port: 3005 },
     '/users/list': { url: 'https://members.tclaccord.com/users/list', port: 3005 },
@@ -99,10 +100,10 @@ const NAVIGATION_CONFIG = {
     '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007 },
     '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007 },
     '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008 },
-    '/subscription/licenses': { url: 'https://packages.tclaccord.com/subscription/licenses', port: 3009 },
-    '/subscription/packages': { url: 'https://packages.tclaccord.com/subscription/packages', port: 3009 },
-    '/subscription/subscriptions': { url: 'https://packages.tclaccord.com/subscription/subscriptions', port: 3009 },
-    '/subscription/subscription-requests': { url: 'https://packages.tclaccord.com/subscription/subscription-requests', port: 3009 },
+    '/subscription/licenses': { url: 'https://packages.tclaccord.com/subscription/licenses', port: 3000 },
+    '/subscription/packages': { url: 'https://packages.tclaccord.com/subscription/packages', port: 3000 },
+    '/subscription/subscriptions': { url: 'https://packages.tclaccord.com/subscription/subscriptions', port: 3000 },
+    '/subscription/subscription-requests': { url: 'https://packages.tclaccord.com/subscription/subscription-requests', port: 3000 },
 };
 
 const PARENT_KEYS = {
@@ -292,7 +293,7 @@ const AdminLayoutContent = ({ children }) => {
             //     return ['/subscription/licenses'];
             // }
 
-            if (port === '3009') {
+            if (port === '3000') {
                 if (currentPath.startsWith('/licenses')) return ['/subscription/licenses'];
                 if (currentPath.startsWith('/packages')) return ['/subscription/packages'];
                 if (currentPath.startsWith('/subscriptions')) return ['/subscription/subscriptions'];
@@ -300,6 +301,7 @@ const AdminLayoutContent = ({ children }) => {
                 return ['/subscription/licenses'];
             }
 
+            if (port === '3001') return ['/auth'];
             if (port === '3002') return ['/dashboard'];
             if (port === '3006') return ['/tickets'];
             if (port === '3008') return ['/tenants'];
