@@ -41,13 +41,19 @@ const cleanUrlFromTokens = () => {
     const hasTokenParams = url.searchParams.has('token') ||
         url.searchParams.has('tenantId') ||
         url.searchParams.has('userId') ||
-        url.searchParams.has('name');
+        url.searchParams.has('name') ||
+        url.searchParams.has('role') ||
+        url.searchParams.has('permissions') ||
+        url.searchParams.has('tenant');
 
     if (hasTokenParams) {
         url.searchParams.delete('token');
         url.searchParams.delete('tenantId');
         url.searchParams.delete('userId');
         url.searchParams.delete('name');
+        url.searchParams.delete('role');
+        url.searchParams.delete('permissions');
+        url.searchParams.delete('tenant');
         window.history.replaceState({}, document.title, url.pathname + url.search);
     }
 };
@@ -84,27 +90,56 @@ const ThemeProvider = ({ children }) => {
     );
 };
 
-const NAVIGATION_CONFIG = {
-    '/auth': { url: 'https://auth.tclaccord.com/auth', port: 3001 },
-    '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002 },
-    '/users': { url: 'https://members.tclaccord.com/users', port: 3005 },
-    '/users/list': { url: 'https://members.tclaccord.com/users/list', port: 3005 },
-    '/users/role': { url: 'https://members.tclaccord.com/users/role', port: 3005 },
-    '/users/permission': { url: 'https://members.tclaccord.com/users/permission', port: 3005 },
-    '/sales/leads': { url: 'https://transaction.tclaccord.com/sales/leads', port: 3004 },
-    '/sales/contacts': { url: 'https://transaction.tclaccord.com/sales/contacts', port: 3004 },
-    '/sales/opportunities': { url: 'https://transaction.tclaccord.com/sales/opportunities', port: 3004 },
-    '/inventory/products': { url: 'https://asset.tclaccord.com/inventory/products', port: 3003 },
-    '/inventory/categories': { url: 'https://asset.tclaccord.com/inventory/categories', port: 3003 },
-    '/tickets': { url: 'https://token.tclaccord.com/tickets', port: 3006 },
-    '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007 },
-    '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007 },
-    '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008 },
-    '/subscription/licenses': { url: 'https://packages.tclaccord.com/subscription/licenses', port: 3000 },
-    '/subscription/packages': { url: 'https://packages.tclaccord.com/subscription/packages', port: 3000 },
-    '/subscription/subscriptions': { url: 'https://packages.tclaccord.com/subscription/subscriptions', port: 3000 },
-    '/subscription/subscription-requests': { url: 'https://packages.tclaccord.com/subscription/subscription-requests', port: 3000 },
+// Function to get tenant-aware navigation configuration
+const getTenantAwareNavigationConfig = () => {
+    const tenant = localStorage.getItem('tenant');
+
+    const baseConfig = {
+        '/auth': { url: 'https://auth.tclaccord.com/auth', port: 3001 },
+        '/dashboard': { url: 'https://dashboard.tclaccord.com/dashboard', port: 3002 },
+        '/users': { url: 'https://members.tclaccord.com/users', port: 3005 },
+        '/users/list': { url: 'https://members.tclaccord.com/users/list', port: 3005 },
+        '/users/role': { url: 'https://members.tclaccord.com/users/role', port: 3005 },
+        '/users/permission': { url: 'https://members.tclaccord.com/users/permission', port: 3005 },
+        '/sales/leads': { url: 'https://transaction.tclaccord.com/sales/leads', port: 3004 },
+        '/sales/contacts': { url: 'https://transaction.tclaccord.com/sales/contacts', port: 3004 },
+        '/sales/opportunities': { url: 'https://transaction.tclaccord.com/sales/opportunities', port: 3004 },
+        '/inventory/products': { url: 'https://asset.tclaccord.com/inventory/products', port: 3003 },
+        '/inventory/categories': { url: 'https://asset.tclaccord.com/inventory/categories', port: 3003 },
+        '/tickets': { url: 'https://token.tclaccord.com/tickets', port: 3006 },
+        '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007 },
+        '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007 },
+        '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008 },
+        '/subscription/licenses': { url: 'https://packages.tclaccord.com/subscription/licenses', port: 3000 },
+        '/subscription/packages': { url: 'https://packages.tclaccord.com/subscription/packages', port: 3000 },
+        '/subscription/subscriptions': { url: 'https://packages.tclaccord.com/subscription/subscriptions', port: 3000 },
+        '/subscription/subscription-requests': { url: 'https://packages.tclaccord.com/subscription/subscription-requests', port: 3000 },
+    };
+
+    // If tenant exists, replace subdomains with tenant-based subdomains
+    if (tenant) {
+        const tenantConfig = {};
+        Object.keys(baseConfig).forEach(key => {
+            const config = baseConfig[key];
+            const url = new URL(config.url);
+
+            // Replace subdomain with tenant subdomain for all except auth
+            if (!url.hostname.includes('auth.tclaccord.com')) {
+                url.hostname = `${tenant}.tclaccord.com`;
+            }
+
+            tenantConfig[key] = {
+                ...config,
+                url: url.toString()
+            };
+        });
+        return tenantConfig;
+    }
+
+    return baseConfig;
 };
+
+
 
 const PARENT_KEYS = {
     '/users/list': '/users',
@@ -137,7 +172,9 @@ const AdminLayoutContent = ({ children }) => {
 
     const handleMenuClick = ({ key }) => {
         console.log('🔍 Menu clicked:', key);
-        const config = NAVIGATION_CONFIG[key];
+        // Get fresh navigation config to account for tenant changes
+        const currentNavConfig = getTenantAwareNavigationConfig();
+        const config = currentNavConfig[key];
         console.log('🔍 Config found:', config);
 
         if (config) {
@@ -190,9 +227,15 @@ const AdminLayoutContent = ({ children }) => {
                 const name = localStorage.getItem('name');
                 const role = localStorage.getItem('role');
                 const permissions = localStorage.getItem('permissions');
+                const tenant = localStorage.getItem('tenant');
 
                 if (token) {
                     url = `${url}?token=${token}&tenantId=${tenantId}&userId=${userId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}&permissions=${encodeURIComponent(permissions)}`;
+
+                    // Add tenant parameter if it exists
+                    if (tenant) {
+                        url = `${url}&tenant=${encodeURIComponent(tenant)}`;
+                    }
                 }
                 window.location.href = url;
             }
@@ -206,7 +249,53 @@ const AdminLayoutContent = ({ children }) => {
     const getSelectedKeys = () => {
         const currentPath = location.pathname;
         const currentHost = window.location.hostname;
+        const tenant = localStorage.getItem('tenant');
 
+        // Handle tenant-based subdomains
+        if (tenant && currentHost === `${tenant}.tclaccord.com`) {
+            // For tenant subdomains, determine the service based on the path
+            if (currentPath.startsWith('/users') || currentPath === '/list' || currentPath === '/role' || currentPath === '/permission' || currentPath === '/add' || currentPath.startsWith('/edit')) {
+                if (currentPath === '/' || currentPath === '/list' || currentPath === '/users/list') return ['/users/list'];
+                if (currentPath === '/role' || currentPath === '/users/role') return ['/users/role'];
+                if (currentPath === '/permission' || currentPath === '/users/permission') return ['/users/permission'];
+                if (currentPath === '/add' || currentPath === '/users/add') return ['/users/list'];
+                if (currentPath.startsWith('/edit') || currentPath.startsWith('/users/edit')) return ['/users/list'];
+                return ['/users/list'];
+            }
+
+            if (currentPath.startsWith('/sales') || currentPath === '/leads' || currentPath === '/contacts' || currentPath === '/opportunities') {
+                if (currentPath === '/leads' || currentPath === '/sales/leads') return ['/sales/leads'];
+                if (currentPath === '/contacts' || currentPath === '/sales/contacts') return ['/sales/contacts'];
+                if (currentPath === '/opportunities' || currentPath === '/sales/opportunities') return ['/sales/opportunities'];
+                return ['/sales/leads'];
+            }
+
+            if (currentPath.startsWith('/inventory') || currentPath === '/products' || currentPath === '/categories') {
+                if (currentPath === '/products' || currentPath === '/inventory/products') return ['/inventory/products'];
+                if (currentPath === '/categories' || currentPath === '/inventory/categories') return ['/inventory/categories'];
+                return ['/inventory/products'];
+            }
+
+            if (currentPath.startsWith('/marketing') || currentPath === '/email-templates' || currentPath === '/campaigns') {
+                if (currentPath === '/email-templates' || currentPath === '/marketing/email-templates') return ['/marketing/email-templates'];
+                if (currentPath === '/campaigns' || currentPath === '/marketing/campaigns') return ['/marketing/campaigns'];
+                return ['/marketing/email-templates'];
+            }
+
+            if (currentPath.startsWith('/subscription')) {
+                if (currentPath.startsWith('/subscription/licenses') || currentPath.startsWith('/licenses')) return ['/subscription/licenses'];
+                if (currentPath.startsWith('/subscription/packages') || currentPath.startsWith('/packages')) return ['/subscription/packages'];
+                if (currentPath.startsWith('/subscription/subscriptions') || currentPath.startsWith('/subscriptions')) return ['/subscription/subscriptions'];
+                if (currentPath.startsWith('/subscription/subscription-requests') || currentPath.startsWith('/subscription-requests')) return ['/subscription/subscription-requests'];
+                return ['/subscription/licenses'];
+            }
+
+            if (currentPath.startsWith('/tickets') || currentPath === '/tickets') return ['/tickets'];
+            if (currentPath.startsWith('/tenants') || currentPath === '/tenant') return ['/tenants'];
+            if (currentPath.startsWith('/dashboard') || currentPath === '/dashboard') return ['/dashboard'];
+        }
+
+        // Handle original subdomain-based routing (when no tenant)
         if (currentHost.includes('dashboard')) return ['/dashboard'];
         if (currentHost.includes('token')) return ['/tickets'];
         if (currentHost.includes('occupant')) return ['/tenants'];
@@ -238,14 +327,6 @@ const AdminLayoutContent = ({ children }) => {
             if (currentPath === '/campaigns') return ['/marketing/campaigns'];
             return ['/marketing/email-templates'];
         }
-
-        // if (currentHost.includes('packages')) {
-        //     if (currentPath === '/subscription/licenses') return ['/subscription/licenses'];
-        //     if (currentPath === '/subscription/packages') return ['/subscription/packages'];
-        //     if (currentPath === '/subscription/subscriptions') return ['/subscription/subscriptions'];
-        //     if (currentPath === '/subscription/subscription-requests') return ['/subscription/subscription-requests'];
-        //     return ['/subscription/licenses'];
-        // }
 
         if (currentHost.includes('packages')) {
             if (currentPath.startsWith('/subscription/licenses')) return ['/subscription/licenses'];
@@ -369,7 +450,9 @@ const AdminLayoutContent = ({ children }) => {
     }, []);
 
     const clearAllMicroFrontendStorage = async () => {
-        const microFrontends = [
+        const tenant = localStorage.getItem('tenant');
+
+        const baseMicroFrontends = [
             { name: 'dashboard', url: 'https://dashboard.tclaccord.com', port: 3002 },
             { name: 'users', url: 'https://members.tclaccord.com', port: 3005 },
             { name: 'sales', url: 'https://transaction.tclaccord.com', port: 3004 },
@@ -378,6 +461,16 @@ const AdminLayoutContent = ({ children }) => {
             { name: 'marketing', url: 'https://strategysphere.tclaccord.com', port: 3007 },
             { name: 'tenants', url: 'https://occupant.tclaccord.com', port: 3008 },
         ];
+
+        // Update URLs to use tenant subdomain if tenant exists
+        const microFrontends = baseMicroFrontends.map(mfe => {
+            if (tenant && !mfe.url.includes('auth.tclaccord.com')) {
+                const url = new URL(mfe.url);
+                url.hostname = `${tenant}.tclaccord.com`;
+                return { ...mfe, url: url.toString() };
+            }
+            return mfe;
+        });
 
         const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
