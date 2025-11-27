@@ -183,21 +183,21 @@ const AdminLayoutContent = ({ children }) => {
             console.log('🔍 Current host:', currentHost, 'Config host:', configHost);
 
             if (currentHost === configHost) {
-                const pathParts = key.split('/').filter(Boolean);
+                // For same host navigation, use the full key path
                 let routePath;
 
                 if (key.startsWith('/users/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`;
+                    routePath = key; // Use full path like /users/list
                 } else if (key.startsWith('/sales/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`;
+                    routePath = key; // Use full path like /sales/leads
                 } else if (key.startsWith('/inventory/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`;
+                    routePath = key; // Use full path like /inventory/products
                 } else if (key.startsWith('/marketing/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`;
+                    routePath = key; // Use full path like /marketing/campaigns
                 } else if (key.startsWith('/subscription/')) {
-                    routePath = `/${pathParts.slice(1).join('/')}`;
+                    routePath = key; // Use full path like /subscription/licenses
                 } else {
-                    routePath = '/';
+                    routePath = key === '/dashboard' ? '/' : key;
                 }
 
                 navigate(routePath, { replace: true });
