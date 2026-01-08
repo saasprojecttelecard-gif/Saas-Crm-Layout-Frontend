@@ -1,8 +1,8 @@
 import AdminLayout from './AdminLayout';
 import authService from './authService';
-import { handleTokenFromUrl, redirectToAuth, checkAuthAndRedirect, clearAllAuthData, broadcastLogout, setupLogoutListener } from './tokenHandler';
+import { handleTokenFromUrl, redirectToAuth, checkAuthAndRedirect } from './tokenHandler';
 import themeUtils from './themeUtils';
-import './index.css';
+import './index.css'; // Ensure CSS is imported
 
 export default AdminLayout;
 export {
@@ -11,8 +11,5 @@ export {
     handleTokenFromUrl,
     redirectToAuth,
     checkAuthAndRedirect,
-    clearAllAuthData,
-    broadcastLogout,
-    setupLogoutListener,
     themeUtils
 };
