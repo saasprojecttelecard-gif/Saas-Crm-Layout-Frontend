@@ -1,3 +1,6 @@
+// Import React 19 compatibility polyfill first
+import './react-is-polyfill.js';
+
 import { Layout, Menu, Button, theme, Drawer, Typography, Dropdown, ConfigProvider } from 'antd';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';

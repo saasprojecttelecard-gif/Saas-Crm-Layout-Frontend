@@ -3,6 +3,18 @@
 
 import reactIsCompatibility from './react-19-compatibility.js';
 
+// Patch global react-is if it exists
+if (typeof window !== 'undefined' && window.require) {
+    try {
+        const Module = window.require.cache && window.require.cache['react-is'];
+        if (Module && Module.exports) {
+            Object.assign(Module.exports, reactIsCompatibility);
+        }
+    } catch (e) {
+        // Ignore errors
+    }
+}
+
 // Export all compatibility functions and constants
 export const {
     Element,

@@ -1,3 +1,6 @@
+// Load React 19 compatibility polyfill first
+import './react-is-polyfill.js';
+
 import AdminLayout from './AdminLayout';
 import authService from './authService';
 import { handleTokenFromUrl, redirectToAuth, checkAuthAndRedirect } from './tokenHandler';
