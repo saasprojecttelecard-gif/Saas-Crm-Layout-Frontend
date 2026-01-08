@@ -310,7 +310,7 @@ const AdminLayoutContent = ({ children }) => {
                         <div className="admin-content-card">{children}</div>
                     </Content>
                     <Footer className="admin-footer-main">
-                        <Text>© 2024 Accord CRM. All rights reserved.</Text>
+                        <Text>© {new Date().getFullYear()} Accord CRM. All rights reserved.</Text>
                     </Footer>
                 </Layout>
             </Layout>
