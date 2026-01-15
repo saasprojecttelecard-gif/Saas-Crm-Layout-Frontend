@@ -156,7 +156,7 @@ const PARENT_KEYS = {
     '/subscription/packages': '/subscription',
     '/subscription/subscriptions': '/subscription',
     '/subscription/subscription-requests': '/subscription',
-    '/tenant': '/tenant',
+    '/tenants': '/tenants',
 };
 
 const getCurrentModule = () => {
@@ -189,7 +189,7 @@ const getCurrentModule = () => {
         if (path.startsWith('/marketing') || path === '/email-templates' || path === '/campaigns') return 'marketing';
         if (path.startsWith('/subscription')) return 'subscription';
         if (path.startsWith('/tickets')) return 'tickets';
-        if (path.startsWith('/tenants') || path === '/tenant') return 'tenants';
+        if (path.startsWith('/tenants')) return 'tenants';
         if (path.startsWith('/dashboard')) return 'dashboard';
         return 'unknown';
     }
@@ -214,7 +214,7 @@ const getTargetModule = (key) => {
     if (key.startsWith('/marketing')) return 'marketing';
     if (key.startsWith('/subscription')) return 'subscription';
     if (key === '/tickets') return 'tickets';
-    if (key === '/tenants') return 'tenants';
+    if (key.startsWith('/tenants')) return 'tenants';
     if (key === '/dashboard') return 'dashboard';
     if (key === '/auth') return 'auth';
     return 'unknown';
@@ -228,7 +228,7 @@ const BASE_PATHS = {
     marketing: '/marketing',
     subscription: '/subscription',
     tickets: '/tickets',
-    tenants: '/tenant',
+    tenants: '/tenants',
     auth: '/auth',
 };
 
@@ -350,14 +350,14 @@ const AdminLayoutContent = ({ children }) => {
             }
 
             if (currentPath.startsWith('/tickets') || currentPath === '/tickets') return ['/tickets'];
-            if (currentPath.startsWith('/tenant') || currentPath === '/tenant') return ['/tenant'];
+            if (currentPath.startsWith('/tenants')) return ['/tenants'];
             if (currentPath === '/' || currentPath.startsWith('/dashboard') || currentPath === '/dashboard') return ['/dashboard'];
         }
 
         // Handle original subdomain-based routing (when no tenant)
         if (currentHost.includes('dashboard')) return ['/dashboard'];
         if (currentHost.includes('token')) return ['/tickets'];
-        if (currentHost.includes('occupant')) return ['/tenant'];
+        if (currentHost.includes('occupant')) return ['/tenants'];
 
         if (currentHost.includes('members')) {
             if (currentPath === '/' || currentPath === '/list' || currentPath === '/users/list') return ['/users/list'];
@@ -455,7 +455,7 @@ const AdminLayoutContent = ({ children }) => {
         const parentKey = PARENT_KEYS[selectedKey];
 
         if (parentKey) return [parentKey];
-        if (['/users', '/sales', '/inventory', '/marketing', '/subscription', '/tenant'].includes(selectedKey)) return [selectedKey];
+        if (['/users', '/sales', '/inventory', '/marketing', '/subscription', '/tenants'].includes(selectedKey)) return [selectedKey];
 
         return [];
     };
@@ -732,7 +732,7 @@ const AdminLayoutContent = ({ children }) => {
 
         if (userRole === 'super_admin') {
             allMenuItems.push(
-                { key: '/tenant', icon: <Building size={16} />, label: 'Tenant' },
+                { key: '/tenants', icon: <Building size={16} />, label: 'Tenant' },
                 {
                     key: '/subscription',
                     icon: <CreditCard size={16} />,
