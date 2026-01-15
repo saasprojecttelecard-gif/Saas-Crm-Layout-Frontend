@@ -109,7 +109,7 @@ const getTenantAwareNavigationConfig = () => {
         '/tickets': { url: 'https://token.tclaccord.com/tickets', port: 3006 },
         '/marketing/email-templates': { url: 'https://strategysphere.tclaccord.com/marketing/email-templates', port: 3007 },
         '/marketing/campaigns': { url: 'https://strategysphere.tclaccord.com/marketing/campaigns', port: 3007 },
-        '/tenants': { url: 'https://occupant.tclaccord.com/tenant', port: 3008 },
+        '/tenants': { url: 'https://occupant.tclaccord.com/tenants', port: 3008 },
         '/subscription/licenses': { url: 'https://packages.tclaccord.com/subscription/licenses', port: 3009 },
         '/subscription/packages': { url: 'https://packages.tclaccord.com/subscription/packages', port: 3009 },
         '/subscription/subscriptions': { url: 'https://packages.tclaccord.com/subscription/subscriptions', port: 3009 },
