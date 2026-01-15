@@ -351,7 +351,7 @@ const AdminLayoutContent = ({ children }) => {
 
             if (currentPath.startsWith('/tickets') || currentPath === '/tickets') return ['/tickets'];
             if (currentPath.startsWith('/tenant') || currentPath === '/tenant') return ['/tenant'];
-            if (currentPath.startsWith('/dashboard') || currentPath === '/dashboard') return ['/dashboard'];
+            if (currentPath === '/' || currentPath.startsWith('/dashboard') || currentPath === '/dashboard') return ['/dashboard'];
         }
 
         // Handle original subdomain-based routing (when no tenant)
