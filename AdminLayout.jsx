@@ -502,7 +502,13 @@ const AdminLayoutContent = ({ children }) => {
         const cleanup = setupLogoutListener(() => {
             clearAllAuthData();
             cleanUrlFromTokens();
-            window.location.href = 'https://signin.tclaccord.com';
+            const hostname = window.location.hostname;
+            let signinUrl = 'https://signin.tclaccord.com';
+            if (hostname.endsWith('.tclaccord.com') && hostname !== 'tclaccord.com') {
+                const tenant = hostname.split('.')[0];
+                signinUrl += `/?tenant=${tenant}`;
+            }
+            window.location.href = signinUrl;
         });
 
         return cleanup;
@@ -592,7 +598,13 @@ const AdminLayoutContent = ({ children }) => {
 
             cleanUrlFromTokens();
 
-            window.location.href = 'https://signin.tclaccord.com';
+            const hostname = window.location.hostname;
+            let signinUrl = 'https://signin.tclaccord.com';
+            if (hostname.endsWith('.tclaccord.com') && hostname !== 'tclaccord.com') {
+                const tenant = hostname.split('.')[0];
+                signinUrl += `/?tenant=${tenant}`;
+            }
+            window.location.href = signinUrl;
         }
     };
 
